@@ -1,0 +1,2419 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Admin Dashboard | ICT Device Management System</title>
+
+    <style>
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        body {
+            background: #f4f6f9;
+            color: #333;
+        }
+
+    
+
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+
+            width: 250px;
+            height: 100vh;
+
+            background: #172554;
+            color: white;
+
+            padding: 20px 15px;
+
+            overflow-y: auto;
+        }
+
+        .logo {
+            text-align: center;
+            padding: 15px 5px 30px;
+            border-bottom: 1px solid rgba(255,255,255,0.15);
+        }
+
+        .logo .icon {
+            font-size: 40px;
+            margin-bottom: 10px;
+        }
+
+        .logo h2 {
+            font-size: 19px;
+        }
+
+        .logo p {
+            font-size: 11px;
+            color: #cbd5e1;
+            margin-top: 6px;
+        }
+
+        .menu {
+            list-style: none;
+            margin-top: 25px;
+        }
+
+        .menu li {
+            margin-bottom: 7px;
+        }
+
+        .menu a {
+            display: flex;
+            align-items: center;
+
+            gap: 12px;
+
+            padding: 13px 14px;
+
+            color: white;
+            text-decoration: none;
+
+            border-radius: 7px;
+
+            transition: 0.3s;
+
+            cursor: pointer;
+        }
+
+        .menu a:hover,
+        .menu a.active {
+            background: #2563eb;
+        }
+
+        .menu-icon {
+            width: 25px;
+            text-align: center;
+        }
+
+        .badge {
+            margin-left: auto;
+
+            background: #ef4444;
+
+            padding: 3px 8px;
+
+            border-radius: 20px;
+
+            font-size: 11px;
+        }
+
+        .logout {
+            margin-top: 70px;
+        }
+
+        /* ================= MAIN ================= */
+
+        .main {
+            margin-left: 250px;
+            min-height: 100vh;
+        }
+
+        /* ================= TOPBAR ================= */
+
+        .topbar {
+            height: 75px;
+
+            background: white;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            padding: 0 30px;
+
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .topbar h1 {
+            font-size: 22px;
+            color: #172554;
+        }
+
+        .topbar p {
+            font-size: 12px;
+            color: #64748b;
+            margin-top: 4px;
+        }
+
+        .admin-profile {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .admin-avatar {
+            width: 42px;
+            height: 42px;
+
+            background: #2563eb;
+
+            color: white;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 50%;
+
+            font-weight: bold;
+        }
+
+        .admin-info strong {
+            color: #172554;
+            font-size: 14px;
+        }
+
+        .admin-info small {
+            display: block;
+            color: #64748b;
+            margin-top: 3px;
+        }
+
+        /* ================= CONTENT ================= */
+
+        .content {
+            padding: 30px;
+        }
+
+        .section {
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        /* ================= PAGE TITLE ================= */
+
+        .page-title {
+            margin-bottom: 25px;
+        }
+
+        .page-title h2 {
+            color: #172554;
+            font-size: 25px;
+        }
+
+        .page-title p {
+            color: #64748b;
+            margin-top: 6px;
+        }
+
+        /* ================= STATISTICS ================= */
+
+        .stats {
+            display: grid;
+
+            grid-template-columns:
+                repeat(4, 1fr);
+
+            gap: 20px;
+
+            margin-bottom: 25px;
+        }
+
+        .stat-card {
+            background: white;
+
+            padding: 22px;
+
+            border-radius: 10px;
+
+            box-shadow:
+                0 2px 8px rgba(0,0,0,0.08);
+
+            display: flex;
+
+            justify-content: space-between;
+
+            align-items: center;
+        }
+
+        .stat-info h3 {
+            font-size: 13px;
+            color: #64748b;
+
+            margin-bottom: 10px;
+        }
+
+        .stat-info .number {
+            font-size: 30px;
+
+            font-weight: bold;
+
+            color: #172554;
+        }
+
+        .stat-icon {
+            width: 52px;
+            height: 52px;
+
+            border-radius: 10px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            font-size: 25px;
+
+            background: #eff6ff;
+        }
+
+        /* ================= GRID ================= */
+
+        .grid-2 {
+            display: grid;
+
+            grid-template-columns:
+                2fr 1fr;
+
+            gap: 20px;
+
+            margin-bottom: 25px;
+        }
+
+        .panel {
+            background: white;
+
+            padding: 25px;
+
+            border-radius: 10px;
+
+            box-shadow:
+                0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .panel-header {
+            display: flex;
+
+            justify-content: space-between;
+
+            align-items: center;
+
+            margin-bottom: 20px;
+        }
+
+        .panel-header h3 {
+            color: #172554;
+        }
+
+        .view-all {
+            color: #2563eb;
+
+            text-decoration: none;
+
+            font-size: 13px;
+        }
+
+        /* ================= TABLE ================= */
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            padding: 13px;
+
+            text-align: left;
+
+            border-bottom:
+                1px solid #e5e7eb;
+
+            font-size: 14px;
+        }
+
+        th {
+            background: #f8fafc;
+
+            color: #172554;
+
+            font-size: 13px;
+        }
+
+        tr:hover {
+            background: #f8fafc;
+        }
+
+        /* ================= STATUS ================= */
+
+        .status {
+            display: inline-block;
+
+            padding: 5px 10px;
+
+            border-radius: 20px;
+
+            font-size: 11px;
+
+            font-weight: bold;
+        }
+
+        .status.available {
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        .status.assigned {
+            background: #fef3c7;
+            color: #b45309;
+        }
+
+        .status.repair {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .status.pending {
+            background: #fef3c7;
+            color: #b45309;
+        }
+
+        .status.approved {
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        /* ================= QUICK ACTIONS ================= */
+
+        .quick-actions {
+            display: grid;
+
+            grid-template-columns:
+                repeat(2, 1fr);
+
+            gap: 12px;
+        }
+
+        .quick-action {
+            padding: 18px;
+
+            background: #f8fafc;
+
+            border-radius: 8px;
+
+            text-decoration: none;
+
+            color: #172554;
+
+            text-align: center;
+
+            cursor: pointer;
+
+            border: 1px solid #e2e8f0;
+        }
+
+        .quick-action:hover {
+            background: #eff6ff;
+
+            border-color: #2563eb;
+        }
+
+        .quick-action .qa-icon {
+            font-size: 25px;
+
+            margin-bottom: 8px;
+        }
+
+        .quick-action span {
+            font-size: 13px;
+
+            font-weight: bold;
+        }
+
+        /* ================= FORM ================= */
+
+        .form-container {
+            background: white;
+
+            padding: 30px;
+
+            max-width: 700px;
+
+            border-radius: 10px;
+
+            box-shadow:
+                0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-group label {
+            display: block;
+
+            margin-bottom: 7px;
+
+            font-weight: bold;
+
+            color: #334155;
+        }
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+
+            padding: 12px;
+
+            border: 1px solid #cbd5e1;
+
+            border-radius: 6px;
+
+            outline: none;
+
+            font-size: 14px;
+        }
+
+        textarea {
+            height: 120px;
+
+            resize: vertical;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            border-color: #2563eb;
+        }
+
+        .btn {
+            padding: 11px 20px;
+
+            border: none;
+
+            border-radius: 6px;
+
+            cursor: pointer;
+
+            font-weight: bold;
+        }
+
+        .btn-primary {
+            background: #2563eb;
+
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #1d4ed8;
+        }
+
+        .btn-danger {
+            background: #dc2626;
+
+            color: white;
+        }
+
+        .btn-success {
+            background: #16a34a;
+
+            color: white;
+        }
+
+        /* ================= ACTION BUTTONS ================= */
+
+        .actions {
+            display: flex;
+
+            gap: 6px;
+        }
+
+        .small-btn {
+            border: none;
+
+            padding: 6px 9px;
+
+            border-radius: 5px;
+
+            cursor: pointer;
+
+            font-size: 11px;
+        }
+
+        .approve {
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        .reject {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .view {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+
+        /* ================= FEEDBACK ================= */
+
+        .feedback-card {
+            background: #f8fafc;
+
+            border-left:
+                4px solid #2563eb;
+
+            padding: 16px;
+
+            margin-bottom: 12px;
+
+            border-radius: 5px;
+        }
+
+        .feedback-card h4 {
+            color: #172554;
+
+            margin-bottom: 5px;
+        }
+
+        .feedback-card p {
+            color: #64748b;
+
+            line-height: 1.5;
+        }
+
+        /* ================= PROFILE ================= */
+
+        .profile-card {
+            background: white;
+
+            max-width: 700px;
+
+            padding: 30px;
+
+            border-radius: 10px;
+
+            box-shadow:
+                0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .profile-row {
+            padding: 15px 0;
+
+            border-bottom:
+                1px solid #e5e7eb;
+
+            display: flex;
+
+            justify-content: space-between;
+        }
+
+        .profile-row strong {
+            color: #172554;
+        }
+
+        /* ================= RESPONSIVE ================= */
+
+        @media(max-width: 1000px) {
+
+            .stats {
+                grid-template-columns:
+                    repeat(2, 1fr);
+            }
+
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+
+        }
+
+        @media(max-width: 700px) {
+
+            .sidebar {
+                width: 210px;
+            }
+
+            .main {
+                margin-left: 210px;
+            }
+
+            .topbar {
+                padding: 0 15px;
+            }
+
+            .admin-info {
+                display: none;
+            }
+
+            .content {
+                padding: 15px;
+            }
+
+        }
+
+        @media(max-width: 550px) {
+
+            .sidebar {
+                position: relative;
+
+                width: 100%;
+
+                height: auto;
+            }
+
+            .main {
+                margin-left: 0;
+            }
+
+            .stats {
+                grid-template-columns: 1fr;
+            }
+
+            .logout {
+                margin-top: 20px;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<!-- ======================================================
+     SIDEBAR
+======================================================= -->
+
+<aside class="sidebar">
+
+    <div class="logo">
+
+        <div class="icon">
+            💻
+        </div>
+
+        <h2>ICT DMS</h2>
+
+        <p>
+            ICT Device Management System
+        </p>
+
+    </div>
+
+
+    <ul class="menu">
+
+        <li>
+
+            <a class="active"
+               onclick="showSection('dashboard', this)">
+
+                <span class="menu-icon">🏠</span>
+
+                Dashboard
+
+            </a>
+
+        </li>
+
+
+        <li>
+
+            <a onclick="showSection('pending', this)">
+
+                <span class="menu-icon">⏳</span>
+
+                Pending
+
+                <span class="badge">
+                    8
+                </span>
+
+            </a>
+
+        </li>
+
+
+        <li>
+
+            <a onclick="showSection('users', this)">
+
+                <span class="menu-icon">👥</span>
+
+                Users Registered
+
+            </a>
+
+        </li>
+
+
+        <li>
+
+            <a onclick="showSection('devices', this)">
+
+                <span class="menu-icon">💻</span>
+
+                Device Status
+
+            </a>
+
+        </li>
+
+
+        <li>
+
+            <a onclick="showSection('records', this)">
+
+                <span class="menu-icon">📁</span>
+
+                Records
+
+            </a>
+
+        </li>
+
+
+        <li>
+
+            <a onclick="showSection('feedback', this)">
+
+                <span class="menu-icon">💬</span>
+
+                Feedback
+
+            </a>
+
+        </li>
+
+
+        <li>
+
+            <a onclick="showSection('regulations', this)">
+
+                <span class="menu-icon">📋</span>
+
+                Regulations
+
+            </a>
+
+        </li>
+
+
+        <li>
+
+            <a onclick="showSection('profile', this)">
+
+                <span class="menu-icon">👤</span>
+
+                My Profile
+
+            </a>
+
+        </li>
+
+
+        <li class="logout">
+
+            <a onclick="logout()">
+
+                <span class="menu-icon">🚪</span>
+
+                Logout
+
+            </a>
+
+        </li>
+
+    </ul>
+
+</aside>
+
+
+
+<!-- ======================================================
+     MAIN
+======================================================= -->
+
+<main class="main">
+
+
+<!-- TOP BAR -->
+
+<header class="topbar">
+
+    <div>
+
+        <h1>
+            ICT Device Management System
+        </h1>
+
+        <p>
+            Administrator Dashboard
+        </p>
+
+    </div>
+
+
+    <div class="admin-profile">
+
+        <div class="admin-avatar">
+            A
+        </div>
+
+        <div class="admin-info">
+
+            <strong>
+                Administrator
+            </strong>
+
+            <small>
+                System Admin
+            </small>
+
+        </div>
+
+    </div>
+
+</header>
+
+
+
+<!-- ======================================================
+     CONTENT
+======================================================= -->
+
+<div class="content">
+
+
+<!-- ======================================================
+     DASHBOARD
+======================================================= -->
+
+<section
+    id="dashboard"
+    class="section active">
+
+
+    <div class="page-title">
+
+        <h2>
+            Dashboard Overview
+        </h2>
+
+        <p>
+            Welcome back, Administrator.
+            Here is the current system overview.
+        </p>
+
+    </div>
+
+
+    <!-- STATISTICS -->
+
+    <div class="stats">
+
+
+        <div class="stat-card">
+
+            <div class="stat-info">
+
+                <h3>
+                    REGISTERED USERS
+                </h3>
+
+                <div class="number">
+                    125
+                </div>
+
+            </div>
+
+            <div class="stat-icon">
+                👥
+            </div>
+
+        </div>
+
+
+
+        <div class="stat-card">
+
+            <div class="stat-info">
+
+                <h3>
+                    TOTAL DEVICES
+                </h3>
+
+                <div class="number">
+                    250
+                </div>
+
+            </div>
+
+            <div class="stat-icon">
+                💻
+            </div>
+
+        </div>
+
+
+
+        <div class="stat-card">
+
+            <div class="stat-info">
+
+                <h3>
+                    PENDING REQUESTS
+                </h3>
+
+                <div class="number">
+                    8
+                </div>
+
+            </div>
+
+            <div class="stat-icon">
+                ⏳
+            </div>
+
+        </div>
+
+
+
+        <div class="stat-card">
+
+            <div class="stat-info">
+
+                <h3>
+                    FEEDBACK
+                </h3>
+
+                <div class="number">
+                    32
+                </div>
+
+            </div>
+
+            <div class="stat-icon">
+                💬
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- RECENT + QUICK ACTION -->
+
+    <div class="grid-2">
+
+
+        <!-- RECENT ACTIVITIES -->
+
+        <div class="panel">
+
+            <div class="panel-header">
+
+                <h3>
+                    Recent Activities
+                </h3>
+
+                <a
+                    href="#"
+                    class="view-all"
+                    onclick="showSectionByName('records')">
+
+                    View All
+
+                </a>
+
+            </div>
+
+
+            <div class="table-container">
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                User
+                            </th>
+
+                            <th>
+                                Activity
+                            </th>
+
+                            <th>
+                                Date
+                            </th>
+
+                            <th>
+                                Status
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                        <tr>
+
+                            <td>
+                                John User
+                            </td>
+
+                            <td>
+                                Requested Laptop
+                            </td>
+
+                            <td>
+                                11/08/2026
+                            </td>
+
+                            <td>
+
+                                <span class="status pending">
+                                    Pending
+                                </span>
+
+                            </td>
+
+                        </tr>
+
+
+                        <tr>
+
+                            <td>
+                                Mary User
+                            </td>
+
+                            <td>
+                                Returned Projector
+                            </td>
+
+                            <td>
+                                10/08/2026
+                            </td>
+
+                            <td>
+
+                                <span class="status approved">
+                                    Completed
+                                </span>
+
+                            </td>
+
+                        </tr>
+
+
+                        <tr>
+
+                            <td>
+                                Peter User
+                            </td>
+
+                            <td>
+                                Submitted Feedback
+                            </td>
+
+                            <td>
+                                10/08/2026
+                            </td>
+
+                            <td>
+
+                                <span class="status pending">
+                                    New
+                                </span>
+
+                            </td>
+
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- QUICK ACTIONS -->
+
+        <div class="panel">
+
+            <div class="panel-header">
+
+                <h3>
+                    Quick Actions
+                </h3>
+
+            </div>
+
+
+            <div class="quick-actions">
+
+
+                <div
+                    class="quick-action"
+                    onclick="showSectionByName('users')">
+
+                    <div class="qa-icon">
+                        👥
+                    </div>
+
+                    <span>
+                        Manage Users
+                    </span>
+
+                </div>
+
+
+                <div
+                    class="quick-action"
+                    onclick="showSectionByName('devices')">
+
+                    <div class="qa-icon">
+                        💻
+                    </div>
+
+                    <span>
+                        Manage Devices
+                    </span>
+
+                </div>
+
+
+                <div
+                    class="quick-action"
+                    onclick="showSectionByName('pending')">
+
+                    <div class="qa-icon">
+                        ⏳
+                    </div>
+
+                    <span>
+                        Pending Requests
+                    </span>
+
+                </div>
+
+
+                <div
+                    class="quick-action"
+                    onclick="showSectionByName('feedback')">
+
+                    <div class="qa-icon">
+                        💬
+                    </div>
+
+                    <span>
+                        View Feedback
+                    </span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+</section>
+
+
+
+<!-- ======================================================
+     PENDING
+======================================================= -->
+
+<section
+    id="pending"
+    class="section">
+
+
+    <div class="page-title">
+
+        <h2>
+            Pending Requests
+        </h2>
+
+        <p>
+            Manage pending device requests and registrations.
+        </p>
+
+    </div>
+
+
+    <div class="panel">
+
+        <div class="table-container">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            Request ID
+                        </th>
+
+                        <th>
+                            User
+                        </th>
+
+                        <th>
+                            Device
+                        </th>
+
+                        <th>
+                            Date
+                        </th>
+
+                        <th>
+                            Status
+                        </th>
+
+                        <th>
+                            Action
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    <tr>
+
+                        <td>
+                            REQ001
+                        </td>
+
+                        <td>
+                            John User
+                        </td>
+
+                        <td>
+                            HP Laptop
+                        </td>
+
+                        <td>
+                            11/08/2026
+                        </td>
+
+                        <td>
+
+                            <span class="status pending">
+                                Pending
+                            </span>
+
+                        </td>
+
+                        <td>
+
+                            <div class="actions">
+
+                                <button
+                                    class="small-btn approve"
+                                    onclick="approveRequest()">
+
+                                    Approve
+
+                                </button>
+
+                                <button
+                                    class="small-btn reject"
+                                    onclick="rejectRequest()">
+
+                                    Reject
+
+                                </button>
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+
+                    <tr>
+
+                        <td>
+                            REQ002
+                        </td>
+
+                        <td>
+                            Mary User
+                        </td>
+
+                        <td>
+                            Projector
+                        </td>
+
+                        <td>
+                            10/08/2026
+                        </td>
+
+                        <td>
+
+                            <span class="status pending">
+                                Pending
+                            </span>
+
+                        </td>
+
+                        <td>
+
+                            <div class="actions">
+
+                                <button
+                                    class="small-btn approve"
+                                    onclick="approveRequest()">
+
+                                    Approve
+
+                                </button>
+
+                                <button
+                                    class="small-btn reject"
+                                    onclick="rejectRequest()">
+
+                                    Reject
+
+                                </button>
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+
+<!-- ======================================================
+     REGISTERED USERS
+======================================================= -->
+
+<section
+    id="users"
+    class="section">
+
+
+    <div class="page-title">
+
+        <h2>
+            Registered Users
+        </h2>
+
+        <p>
+            View and manage users registered in the system.
+        </p>
+
+    </div>
+
+
+    <div class="panel">
+
+        <div class="table-container">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            ID
+                        </th>
+
+                        <th>
+                            Full Name
+                        </th>
+
+                        <th>
+                            Username
+                        </th>
+
+                        <th>
+                            Email
+                        </th>
+
+                        <th>
+                            Role
+                        </th>
+
+                        <th>
+                            Status
+                        </th>
+
+                        <th>
+                            Action
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    <tr>
+
+                        <td>
+                            001
+                        </td>
+
+                        <td>
+                            John User
+                        </td>
+
+                        <td>
+                            johnuser
+                        </td>
+
+                        <td>
+                            john@example.com
+                        </td>
+
+                        <td>
+                            User
+                        </td>
+
+                        <td>
+
+                            <span class="status approved">
+                                Active
+                            </span>
+
+                        </td>
+
+                        <td>
+
+                            <button
+                                class="small-btn view"
+                                onclick="viewUser()">
+
+                                View
+
+                            </button>
+
+                        </td>
+
+                    </tr>
+
+
+                    <tr>
+
+                        <td>
+                            002
+                        </td>
+
+                        <td>
+                            Mary User
+                        </td>
+
+                        <td>
+                            maryuser
+                        </td>
+
+                        <td>
+                            mary@example.com
+                        </td>
+
+                        <td>
+                            User
+                        </td>
+
+                        <td>
+
+                            <span class="status approved">
+                                Active
+                            </span>
+
+                        </td>
+
+                        <td>
+
+                            <button
+                                class="small-btn view"
+                                onclick="viewUser()">
+
+                                View
+
+                            </button>
+
+                        </td>
+
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+
+<!-- ======================================================
+     DEVICE STATUS
+======================================================= -->
+
+<section
+    id="devices"
+    class="section">
+
+
+    <div class="page-title">
+
+        <h2>
+            Device Status
+        </h2>
+
+        <p>
+            Monitor the current status of ICT devices.
+        </p>
+
+    </div>
+
+
+    <div class="stats">
+
+
+        <div class="stat-card">
+
+            <div class="stat-info">
+
+                <h3>
+                    AVAILABLE
+                </h3>
+
+                <div class="number">
+                    120
+                </div>
+
+            </div>
+
+            <div class="stat-icon">
+                ✅
+            </div>
+
+        </div>
+
+
+        <div class="stat-card">
+
+            <div class="stat-info">
+
+                <h3>
+                    ASSIGNED
+                </h3>
+
+                <div class="number">
+                    95
+                </div>
+
+            </div>
+
+            <div class="stat-icon">
+                👤
+            </div>
+
+        </div>
+
+
+        <div class="stat-card">
+
+            <div class="stat-info">
+
+                <h3>
+                    UNDER REPAIR
+                </h3>
+
+                <div class="number">
+                    20
+                </div>
+
+            </div>
+
+            <div class="stat-icon">
+                🔧
+            </div>
+
+        </div>
+
+
+        <div class="stat-card">
+
+            <div class="stat-info">
+
+                <h3>
+                    LOST
+                </h3>
+
+                <div class="number">
+                    15
+                </div>
+
+            </div>
+
+            <div class="stat-icon">
+                ⚠️
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="panel">
+
+        <div class="table-container">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            Device ID
+                        </th>
+
+                        <th>
+                            Device Name
+                        </th>
+
+                        <th>
+                            Category
+                        </th>
+
+                        <th>
+                            Location
+                        </th>
+
+                        <th>
+                            Assigned To
+                        </th>
+
+                        <th>
+                            Status
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    <tr>
+
+                        <td>
+                            ICT001
+                        </td>
+
+                        <td>
+                            HP Desktop
+                        </td>
+
+                        <td>
+                            Computer
+                        </td>
+
+                        <td>
+                            ICT Lab 01
+                        </td>
+
+                        <td>
+                            -
+                        </td>
+
+                        <td>
+
+                            <span class="status available">
+                                Available
+                            </span>
+
+                        </td>
+
+                    </tr>
+
+
+                    <tr>
+
+                        <td>
+                            ICT002
+                        </td>
+
+                        <td>
+                            HP Laptop
+                        </td>
+
+                        <td>
+                            Laptop
+                        </td>
+
+                        <td>
+                            Office 02
+                        </td>
+
+                        <td>
+                            John User
+                        </td>
+
+                        <td>
+
+                            <span class="status assigned">
+                                Assigned
+                            </span>
+
+                        </td>
+
+                    </tr>
+
+
+                    <tr>
+
+                        <td>
+                            ICT003
+                        </td>
+
+                        <td>
+                            Epson Projector
+                        </td>
+
+                        <td>
+                            Projector
+                        </td>
+
+                        <td>
+                            Room 03
+                        </td>
+
+                        <td>
+                            -
+                        </td>
+
+                        <td>
+
+                            <span class="status repair">
+                                Under Repair
+                            </span>
+
+                        </td>
+
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+
+<!-- ======================================================
+     RECORDS
+======================================================= -->
+
+<section
+    id="records"
+    class="section">
+
+
+    <div class="page-title">
+
+        <h2>
+            Device Records
+        </h2>
+
+        <p>
+            View all device assignment and return records.
+        </p>
+
+    </div>
+
+
+    <div class="panel">
+
+        <div class="table-container">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            Record ID
+                        </th>
+
+                        <th>
+                            User
+                        </th>
+
+                        <th>
+                            Device
+                        </th>
+
+                        <th>
+                            Date Assigned
+                        </th>
+
+                        <th>
+                            Return Date
+                        </th>
+
+                        <th>
+                            Status
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    <tr>
+
+                        <td>
+                            REC001
+                        </td>
+
+                        <td>
+                            John User
+                        </td>
+
+                        <td>
+                            HP Laptop
+                        </td>
+
+                        <td>
+                            01/08/2026
+                        </td>
+
+                        <td>
+                            -
+                        </td>
+
+                        <td>
+
+                            <span class="status assigned">
+                                In Use
+                            </span>
+
+                        </td>
+
+                    </tr>
+
+
+                    <tr>
+
+                        <td>
+                            REC002
+                        </td>
+
+                        <td>
+                            Mary User
+                        </td>
+
+                        <td>
+                            Projector
+                        </td>
+
+                        <td>
+                            05/07/2026
+                        </td>
+
+                        <td>
+                            10/07/2026
+                        </td>
+
+                        <td>
+
+                            <span class="status approved">
+                                Returned
+                            </span>
+
+                        </td>
+
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+
+<!-- ======================================================
+     FEEDBACK
+======================================================= -->
+
+<section
+    id="feedback"
+    class="section">
+
+
+    <div class="page-title">
+
+        <h2>
+            User Feedback
+        </h2>
+
+        <p>
+            View feedback and complaints submitted by users.
+        </p>
+
+    </div>
+
+
+    <div class="panel">
+
+
+        <div class="feedback-card">
+
+            <h4>
+                John User — Device Problem
+            </h4>
+
+            <p>
+                The laptop assigned to me is experiencing
+                problems and needs technical support.
+            </p>
+
+            <br>
+
+            <span class="status pending">
+                New Feedback
+            </span>
+
+        </div>
+
+
+        <div class="feedback-card">
+
+            <h4>
+                Mary User — Suggestion
+            </h4>
+
+            <p>
+                More projectors should be made available
+                in the computer laboratories.
+            </p>
+
+            <br>
+
+            <span class="status approved">
+                Reviewed
+            </span>
+
+        </div>
+
+
+    </div>
+
+</section>
+
+
+
+<!-- ======================================================
+     REGULATIONS
+======================================================= -->
+
+<section
+    id="regulations"
+    class="section">
+
+
+    <div class="page-title">
+
+        <h2>
+            ICT Regulations
+        </h2>
+
+        <p>
+            Manage ICT device usage regulations.
+        </p>
+
+    </div>
+
+
+    <div class="panel">
+
+        <div class="feedback-card">
+
+            <h4>
+                1. Proper Use of ICT Devices
+            </h4>
+
+            <p>
+                ICT devices must be used only for
+                authorized organizational activities.
+            </p>
+
+        </div>
+
+
+        <div class="feedback-card">
+
+            <h4>
+                2. Device Security
+            </h4>
+
+            <p>
+                Users must protect ICT devices from
+                unauthorized access and damage.
+            </p>
+
+        </div>
+
+
+        <div class="feedback-card">
+
+            <h4>
+                3. Reporting Damaged Devices
+            </h4>
+
+            <p>
+                All damaged or malfunctioning devices
+                must be reported to the ICT department.
+            </p>
+
+        </div>
+
+
+        <div class="feedback-card">
+
+            <h4>
+                4. Device Return
+            </h4>
+
+            <p>
+                Borrowed devices must be returned according
+                to the organization's procedures.
+            </p>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+
+<!-- ======================================================
+     ADMIN PROFILE
+======================================================= -->
+
+<section
+    id="profile"
+    class="section">
+
+
+    <div class="page-title">
+
+        <h2>
+            Administrator Profile
+        </h2>
+
+    </div>
+
+
+    <div class="profile-card">
+
+        <div class="profile-row">
+
+            <strong>
+                Full Name
+            </strong>
+
+            <span>
+                System Administrator
+            </span>
+
+        </div>
+
+
+        <div class="profile-row">
+
+            <strong>
+                Username
+            </strong>
+
+            <span>
+                admin
+            </span>
+
+        </div>
+
+
+        <div class="profile-row">
+
+            <strong>
+                Email
+            </strong>
+
+            <span>
+                admin@example.com
+            </span>
+
+        </div>
+
+
+        <div class="profile-row">
+
+            <strong>
+                Role
+            </strong>
+
+            <span>
+                Administrator
+            </span>
+
+        </div>
+
+
+        <br>
+
+        <button
+            class="btn btn-primary"
+            onclick="alert('Edit profile page can be connected here.')">
+
+            Edit Profile
+
+        </button>
+
+    </div>
+
+</section>
+
+
+</div>
+
+</main>
+
+
+
+<!-- ======================================================
+     JAVASCRIPT
+======================================================= -->
+
+<script>
+
+
+function showSection(sectionId, element) {
+
+    /*
+        Hide all sections
+    */
+
+    const sections =
+        document.querySelectorAll(".section");
+
+    sections.forEach(function(section) {
+
+        section.classList.remove("active");
+
+    });
+
+
+    /*
+        Show selected section
+    */
+
+    const selected =
+        document.getElementById(sectionId);
+
+    if (selected) {
+
+        selected.classList.add("active");
+
+    }
+
+
+    /*
+        Remove active menu
+    */
+
+    const menuLinks =
+        document.querySelectorAll(".menu a");
+
+    menuLinks.forEach(function(link) {
+
+        link.classList.remove("active");
+
+    });
+
+
+    /*
+        Activate selected menu
+    */
+
+    if (element) {
+
+        element.classList.add("active");
+
+    }
+
+}
+
+
+
+function showSectionByName(sectionId) {
+
+    const sections =
+        document.querySelectorAll(".section");
+
+    sections.forEach(function(section) {
+
+        section.classList.remove("active");
+
+    });
+
+
+    const selected =
+        document.getElementById(sectionId);
+
+    if (selected) {
+
+        selected.classList.add("active");
+
+    }
+
+
+    /*
+        Update sidebar active state
+    */
+
+    const links =
+        document.querySelectorAll(".menu a");
+
+    links.forEach(function(link) {
+
+        link.classList.remove("active");
+
+    });
+
+}
+
+
+
+function approveRequest() {
+
+    alert(
+        "Request approved successfully."
+    );
+
+}
+
+
+
+function rejectRequest() {
+
+    const confirmation =
+        confirm(
+            "Are you sure you want to reject this request?"
+        );
+
+    if (confirmation) {
+
+        alert(
+            "Request rejected."
+        );
+
+    }
+
+}
+
+
+
+function viewUser() {
+
+    alert(
+        "User details can be displayed here."
+    );
+
+}
+
+
+
+function logout() {
+
+    const confirmation =
+        confirm(
+            "Are you sure you want to logout?"
+        );
+
+    if (confirmation) {
+
+        /*
+            Flask login route.
+            Change /login if your route has another name.
+        */
+
+        window.location.href = "/login";
+
+    }
+
+}
+
+
+</script>
+
+
+</body>
+
+</html>
