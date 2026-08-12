@@ -16,66 +16,58 @@
 
         body {
             min-height: 100vh;
-            background: linear-gradient(135deg, #0f172a, #1d4ed8);
+            background: linear-gradient(135deg, #0f172a, #1dd897ae);
             display: flex;
             justify-content: center;
             align-items: center;
+            padding: 20px;
         }
 
-        /* MAIN CONTAINER */
+        /* MAIN CARD */
         .container {
-            width: 700px;
-            min-height: 460px;
+            width: 500px;
+            min-height: 600px;
             background: white;
             border-radius: 15px;
-            overflow: hidden;
-            display: flex;
+            padding: 40px;
             box-shadow: 0 10px 35px rgba(0,0,0,0.25);
         }
 
-        /* LEFT SIDE */
-        .left {
-            width: 45%;
-            background: #172554;
-            color: white;
-            padding: 50px 35px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
+        /* SYSTEM INFORMATION */
+        .system-info {
             text-align: center;
+            margin-bottom: 35px;
         }
 
         .logo {
             font-size: 55px;
-            margin-bottom: 20px;
-        }
-
-        .left h1 {
-            font-size: 28px;
-            line-height: 1.3;
             margin-bottom: 15px;
         }
 
-        .left p {
-            color: #cbd5e1;
+        .system-info h1 {
+            color: #172554;
+            font-size: 27px;
+            line-height: 1.3;
+            margin-bottom: 12px;
+        }
+
+        .system-info p {
+            color: #64748b;
+            font-size: 14px;
             line-height: 1.6;
-            font-size: 15px;
         }
 
         .system-name {
-            margin-top: 30px;
-            padding: 12px;
+            margin-top: 20px;
+            padding: 10px;
             border: 1px solid #60a5fa;
             border-radius: 8px;
-            font-size: 14px;
+            color: #172554;
+            font-size: 13px;
+            font-weight: bold;
         }
 
-        /* RIGHT SIDE */
-        .right {
-            width: 55%;
-            padding: 45px;
-        }
-
+        /* FORMS */
         .form {
             display: none;
         }
@@ -86,19 +78,19 @@
 
         .form h2 {
             color: #172554;
-            font-size: 28px;
-            margin-bottom: 8px;
+            font-size: 25px;
+            margin-bottom: 7px;
         }
 
         .subtitle {
             color: #64748b;
-            margin-bottom: 25px;
+            margin-bottom: 22px;
             font-size: 14px;
         }
 
         /* INPUT */
         .input-box {
-            margin-bottom: 17px;
+            margin-bottom: 16px;
         }
 
         .input-box label {
@@ -148,25 +140,24 @@
             font-size: 14px;
         }
 
-        .links a {
+        .links a,
+        .back-login a {
             color: #2563eb;
             text-decoration: none;
             cursor: pointer;
         }
 
-        .links a:hover {
+        .links a:hover,
+        .back-login a:hover {
             text-decoration: underline;
         }
 
+        /* BACK TO LOGIN */
         .back-login {
             text-align: center;
             margin-top: 20px;
             font-size: 14px;
-        }
-
-        .back-login a {
-            color: #2563eb;
-            cursor: pointer;
+            color: #64748b;
         }
 
         /* FOOTER */
@@ -178,25 +169,23 @@
         }
 
         /* MOBILE */
-        @media(max-width: 700px) {
+        @media(max-width: 550px) {
+
+            body {
+                padding: 15px;
+            }
 
             .container {
-                width: 95%;
-                flex-direction: column;
-            }
-
-            .left {
                 width: 100%;
-                padding: 30px 20px;
+                padding: 30px 22px;
             }
 
-            .left h1 {
-                font-size: 22px;
+            .system-info h1 {
+                font-size: 23px;
             }
 
-            .right {
-                width: 100%;
-                padding: 30px;
+            .logo {
+                font-size: 45px;
             }
         }
     </style>
@@ -206,14 +195,14 @@
 
 <div class="container">
 
-    <!-- LEFT SIDE -->
-    <div class="left">
+    <!-- ================= SYSTEM INFORMATION ================= -->
+
+    <div class="system-info">
 
         <div class="logo">💻</div>
 
         <h1>
-            ICT Device<br>
-            Management System
+            ICT Device Management System
         </h1>
 
         <p>
@@ -221,195 +210,186 @@
             efficiently through one centralized system.
         </p>
 
+    
 
     </div>
 
 
-    <!-- RIGHT SIDE -->
-    <div class="right">
+    <!-- ================= LOGIN ================= -->
+
+    
+
+        <div class="input-box">
+
+            <label>Username or Email</label>
+
+            <input
+                type="text"
+                id="loginUsername"
+                placeholder="Enter username or email">
+
+        </div>
 
 
-        <!-- ================= LOGIN ================= -->
+        <div class="input-box">
 
-        <div class="form active" id="loginForm">
+            <label>Password</label>
 
+            <input
+                type="password"
+                id="loginPassword"
+                placeholder="Enter password">
 
-            <div class="input-box">
-                <label>Username or Email</label>
-
-                <input
-                    type="text"
-                    id="loginUsername"
-                    placeholder="Enter username or email">
-            </div>
+        </div>
 
 
-            <div class="input-box">
-                <label>Password</label>
-
-                <input
-                    type="password"
-                    id="loginPassword"
-                    placeholder="Enter password">
-            </div>
+        <button class="btn" onclick="login()">
+            Login
+        </button>
 
 
-            <button class="btn" onclick="login()">
+        <div class="links">
+
+            <a onclick="showForm('forgotForm')">
+                Forgot Password?
+            </a>
+
+            <a onclick="showForm('registerForm')">
+                Create Account
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <!-- ================= REGISTRATION ================= -->
+
+    <div class="form" id="registerForm">
+
+        <h2>User Registration</h2>
+
+        <p class="subtitle">
+            Create a new account
+        </p>
+
+
+        <div class="input-box">
+
+            <label>Full Name</label>
+
+            <input
+                type="text"
+                placeholder="Enter your full name">
+
+        </div>
+
+
+        <div class="input-box">
+
+            <label>Email Address</label>
+
+            <input
+                type="email"
+                placeholder="Enter your email">
+
+        </div>
+
+
+        <div class="input-box">
+
+            <label>Username</label>
+
+            <input
+                type="text"
+                placeholder="Choose username">
+
+        </div>
+
+
+        <div class="input-box">
+
+            <label>Password</label>
+
+            <input
+                type="password"
+                placeholder="Create password">
+
+        </div>
+
+
+        <div class="input-box">
+
+            <label>Confirm Password</label>
+
+            <input
+                type="password"
+                placeholder="Confirm password">
+
+        </div>
+
+
+        <button class="btn" onclick="register()">
+            Register
+        </button>
+
+
+        <div class="back-login">
+
+            Already have an account?
+
+            <a onclick="showForm('loginForm')">
                 Login
-            </button>
-
-
-            <div class="links">
-
-                <a onclick="showForm('forgotForm')">
-                    Forgot Password?
-                </a>
-
-                <a onclick="showForm('registerForm')">
-                    Create Account
-                </a>
-
-            </div>
-
-        </div>
-
-
-
-        <!-- ================= REGISTRATION ================= -->
-
-        <div class="form" id="registerForm">
-
-            <h2>User Registration</h2>
-
-            <p class="subtitle">
-                Create a new account
-            </p>
-
-
-            <div class="input-box">
-
-                <label>Full Name</label>
-
-                <input
-                    type="text"
-                    placeholder="Enter your full name">
-
-            </div>
-
-
-            <div class="input-box">
-
-                <label>Email Address</label>
-
-                <input
-                    type="email"
-                    placeholder="Enter your email">
-
-            </div>
-
-
-            <div class="input-box">
-
-                <label>Username</label>
-
-                <input
-                    type="text"
-                    placeholder="Choose username">
-
-            </div>
-
-
-            <div class="input-box">
-
-                <label>Password</label>
-
-                <input
-                    type="password"
-                    placeholder="Create password">
-
-            </div>
-
-
-            <div class="input-box">
-
-                <label>Confirm Password</label>
-
-                <input
-                    type="password"
-                    placeholder="Confirm password">
-
-            </div>
-
-
-            <button class="btn" onclick="register()">
-                Register
-            </button>
-
-
-            <div class="back-login">
-
-                Already have an account?
-
-                <a onclick="showForm('loginForm')">
-                    Login
-                </a>
-
-            </div>
-
-        </div>
-
-
-
-        <!-- ================= FORGOT PASSWORD ================= -->
-
-        <div class="form" id="forgotForm">
-
-            <h2>Forgot Password</h2>
-
-            <p class="subtitle">
-                Enter your email to reset your password
-            </p>
-
-
-            <div class="input-box">
-
-                <label>Email Address</label>
-
-                <input
-                    type="email"
-                    placeholder="Enter registered email">
-
-            </div>
-
-
-            <button class="btn" onclick="resetPassword()">
-                Send Reset Link
-            </button>
-
-
-            <div class="back-login">
-
-                Remember your password?
-
-                <a onclick="showForm('loginForm')">
-                    Back to Login
-                </a>
-
-            </div>
-
-        </div>
-
-
-        <div class="footer">
-
-            © 2026 ICT Device Management System
+            </a>
 
         </div>
 
     </div>
+
+
+    <!-- ================= FORGOT PASSWORD ================= -->
+
+    <div class="form" id="forgotForm">
+
+        <h2>Forgot Password</h2>
+
+        <p class="subtitle">
+            Enter your email to reset your password
+        </p>
+
+
+        <div class="input-box">
+
+            <label>Email Address</label>
+
+            <input
+                type="email"
+                placeholder="Enter registered email">
+
+        </div>
+
+
+        <button class="btn" onclick="resetPassword()">
+            Send Reset Link
+        </button>
+
+
+        <div class="back-login">
+
+            Remember your password?
+
+            <a onclick="showForm('loginForm')">
+                Back to Login
+            </a>
+
+        </div>
+
+    </div>
+
+
+    
 
 </div>
-
 
 
 <script>
@@ -418,13 +398,11 @@
 
     function showForm(formId) {
 
-        document.querySelectorAll(".form")
-            .forEach(form => {
-                form.classList.remove("active");
-            });
+        document.querySelectorAll(".form").forEach(form => {
+            form.classList.remove("active");
+        });
 
-        document.getElementById(formId)
-            .classList.add("active");
+        document.getElementById(formId).classList.add("active");
     }
 
 
