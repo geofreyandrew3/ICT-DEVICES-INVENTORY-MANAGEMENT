@@ -1,7 +1,30 @@
+/* =========================================================
+   ICT DEVICES MANAGEMENT SYSTEM
+   ADMIN.JS
+
+   Backend:
+   Flask
+
+   API:
+   http://127.0.0.1:5000/api/admin
+========================================================= */
+
+
+/* =========================================================
+   API CONFIGURATION
+========================================================= */
+
 const API_URL = "http://127.0.0.1:5000/api";
 
-document.addEventListener("DOMContentLoaded", () => {
+
+/* =========================================================
+   PAGE LOAD
+========================================================= */
+
+document.addEventListener("DOMContentLoaded", function () {
+
     loadAdminData();
+
 });
 
 
@@ -25,17 +48,26 @@ async function apiRequest(endpoint, options = {}) {
             }
         );
 
-        const data = await response.json().catch(() => ({}));
+
+        const data =
+            await response.json().catch(() => ({}));
+
 
         if (!response.ok) {
+
             throw new Error(
-                data.message || "Request failed"
+                data.message ||
+                "Request failed."
             );
+
         }
+
 
         return data;
 
-    } catch (error) {
+    }
+
+    catch (error) {
 
         console.error(
             "API Error:",
@@ -43,12 +75,14 @@ async function apiRequest(endpoint, options = {}) {
         );
 
         throw error;
+
     }
+
 }
 
 
 /* =========================================================
-   LOAD ALL ADMIN DATA
+   LOAD ADMIN DATA
 ========================================================= */
 
 async function loadAdminData() {
@@ -63,11 +97,10 @@ async function loadAdminData() {
 
         loadBorrowings(),
 
-        loadFeedback(),
-
-        loadNotifications()
+        loadFeedback()
 
     ]);
+
 }
 
 
@@ -75,40 +108,53 @@ async function loadAdminData() {
    MODULE NAVIGATION
 ========================================================= */
 
-function openModule(moduleId, clickedMenu) {
+function openModule(
+    moduleId,
+    clickedMenu
+) {
 
     document
         .querySelectorAll(".module")
-        .forEach(module => {
+        .forEach(function (module) {
 
-            module.classList.remove("active");
+            module.classList.remove(
+                "active"
+            );
 
         });
 
 
     const selectedModule =
-        document.getElementById(moduleId);
+        document.getElementById(
+            moduleId
+        );
 
 
     if (selectedModule) {
 
-        selectedModule.classList.add("active");
+        selectedModule.classList.add(
+            "active"
+        );
 
     }
 
 
     document
         .querySelectorAll(".menu-item")
-        .forEach(item => {
+        .forEach(function (item) {
 
-            item.classList.remove("active");
+            item.classList.remove(
+                "active"
+            );
 
         });
 
 
     if (clickedMenu) {
 
-        clickedMenu.classList.add("active");
+        clickedMenu.classList.add(
+            "active"
+        );
 
     }
 
@@ -165,16 +211,72 @@ function openModule(moduleId, clickedMenu) {
     };
 
 
-    document.getElementById(
-        "pageTitle"
-    ).textContent =
-        titles[moduleId] || "";
+    const pageTitle =
+        document.getElementById(
+            "pageTitle"
+        );
 
 
-    document.getElementById(
-        "pageSubtitle"
-    ).textContent =
-        subtitles[moduleId] || "";
+    const pageSubtitle =
+        document.getElementById(
+            "pageSubtitle"
+        );
+
+
+    if (pageTitle) {
+
+        pageTitle.textContent =
+            titles[moduleId] || "";
+
+    }
+
+
+    if (pageSubtitle) {
+
+        pageSubtitle.textContent =
+            subtitles[moduleId] || "";
+
+    }
+
+
+    /* -----------------------------------------
+       LOAD MODULE DATA WHEN OPENED
+    ----------------------------------------- */
+
+    if (moduleId === "users") {
+
+        loadUsers();
+
+    }
+
+
+    if (moduleId === "devices") {
+
+        loadDevices();
+
+    }
+
+
+    if (moduleId === "borrowings") {
+
+        loadBorrowings();
+
+    }
+
+
+    if (moduleId === "feedback") {
+
+        loadFeedback();
+
+    }
+
+
+    if (moduleId === "reports") {
+
+        loadReports();
+
+    }
+
 }
 
 
@@ -186,44 +288,200 @@ async function loadStats() {
 
     try {
 
-        const data =
-            await apiRequest(
-                "/admin/stats"
+        /*
+         * We calculate statistics from the
+         * existing backend endpoints.
+         *
+         * This avoids depending on a missing
+         * /admin/stats endpoint.
+         */
+
+        const results =
+            await Promise.allSettled([
+
+                apiRequest(
+                    "/admin/users"
+                ),
+
+                apiRequest(
+                    "/admin/devices"
+                ),
+
+                apiRequest(
+                    "/admin/borrowings"
+                ),
+
+                apiRequest(
+                    "/admin/feedback"
+                )
+
+            ]);
+
+
+        const users =
+            results[0].status === "fulfilled"
+                ? results[0].value.users || []
+                : [];
+
+
+        const devices =
+            results[1].status === "fulfilled"
+                ? results[1].value.devices || []
+                : [];
+
+
+        const borrowings =
+            results[2].status === "fulfilled"
+                ? results[2].value.borrowings || []
+                : [];
+
+
+        const feedback =
+            results[3].status === "fulfilled"
+                ? results[3].value.feedback || []
+                : [];
+
+
+        /* -----------------------------------------
+           TOTAL USERS
+        ----------------------------------------- */
+
+        const totalUsers =
+            document.getElementById(
+                "totalUsers"
             );
 
 
-        document.getElementById(
-            "totalUsers"
-        ).textContent =
-            data.total_users ?? 0;
+        if (totalUsers) {
+
+            totalUsers.textContent =
+                users.length;
+
+        }
 
 
-        document.getElementById(
-            "totalDevices"
-        ).textContent =
-            data.total_devices ?? 0;
+        /* -----------------------------------------
+           TOTAL DEVICES
+        ----------------------------------------- */
+
+        const totalDevices =
+            document.getElementById(
+                "totalDevices"
+            );
 
 
-        document.getElementById(
-            "borrowedDevices"
-        ).textContent =
-            data.borrowed_devices ?? 0;
+        if (totalDevices) {
+
+            totalDevices.textContent =
+                devices.reduce(
+                    function (total, device) {
+
+                        return total +
+                            Number(
+                                device.total_quantity || 0
+                            );
+
+                    },
+                    0
+                );
+
+        }
 
 
-        document.getElementById(
-            "totalFeedback"
-        ).textContent =
-            data.total_feedback ?? 0;
+        /* -----------------------------------------
+           BORROWED DEVICES
+        ----------------------------------------- */
+
+        const borrowedDevices =
+            document.getElementById(
+                "borrowedDevices"
+            );
 
 
-    } catch (error) {
+        if (borrowedDevices) {
+
+            const borrowed =
+                borrowings
+                    .filter(function (item) {
+
+                        return String(
+                            item.status || ""
+                        ).toLowerCase() ===
+                            "borrowed";
+
+                    })
+                    .reduce(
+                        function (total, item) {
+
+                            return total +
+                                Number(
+                                    item.quantity || 0
+                                );
+
+                        },
+                        0
+                    );
+
+
+            borrowedDevices.textContent =
+                borrowed;
+
+        }
+
+
+        /* -----------------------------------------
+           TOTAL FEEDBACK
+        ----------------------------------------- */
+
+        const totalFeedback =
+            document.getElementById(
+                "totalFeedback"
+            );
+
+
+        if (totalFeedback) {
+
+            totalFeedback.textContent =
+                feedback.length;
+
+        }
+
+
+        /* -----------------------------------------
+           BADGES
+        ----------------------------------------- */
+
+        updateBadge(
+            "borrowingBadge",
+            borrowings.filter(
+                function (item) {
+
+                    return String(
+                        item.status || ""
+                    ).toLowerCase() ===
+                        "borrowed";
+
+                }
+            ).length
+        );
+
+
+        updateBadge(
+            "feedbackBadge",
+            feedback.length
+        );
+
+    }
+
+    catch (error) {
 
         console.error(
-            "Loading statistics failed:",
+            "Statistics error:",
             error
         );
 
     }
+
 }
 
 
@@ -248,10 +506,14 @@ async function loadUsers() {
             data.users || [];
 
 
-        renderUsers(allUsers);
+        renderUsers(
+            allUsers
+        );
 
 
-    } catch (error) {
+    }
+
+    catch (error) {
 
         console.error(
             "Loading users failed:",
@@ -276,8 +538,13 @@ async function loadUsers() {
         }
 
     }
+
 }
 
+
+/* =========================================================
+   RENDER USERS
+========================================================= */
 
 function renderUsers(users) {
 
@@ -299,11 +566,24 @@ function renderUsers(users) {
             );
 
         return;
+
     }
 
 
     body.innerHTML =
-        users.map(user => {
+        users.map(function (user) {
+
+            /*
+             * IMPORTANT:
+             * Backend may return user_id,
+             * not id.
+             */
+
+            const userId =
+                user.user_id ??
+                user.id ??
+                "";
+
 
             return `
 
@@ -311,53 +591,61 @@ function renderUsers(users) {
 
                     <td>
                         ${escapeHtml(
-                            user.id ?? ""
+                            userId
                         )}
                     </td>
 
-                    <td>
-                        ${escapeHtml(
-                            user.full_name ?? ""
-                        )}
-                    </td>
 
                     <td>
                         ${escapeHtml(
-                            user.phone ?? ""
+                            user.full_name ??
+                            ""
                         )}
                     </td>
 
-                    <td>
-                        ${escapeHtml(
-                            user.email ?? ""
-                        )}
-                    </td>
 
                     <td>
                         ${escapeHtml(
-                            user.registered_at ?? ""
+                            user.phone ??
+                            ""
                         )}
                     </td>
+
+
+                    <td>
+                        ${escapeHtml(
+                            user.email ??
+                            ""
+                        )}
+                    </td>
+
+
+                    <td>
+                        ${escapeHtml(
+                            user.registered_at ??
+                            user.created_at ??
+                            ""
+                        )}
+                    </td>
+
 
                     <td>
 
                         <span
                             class="status active-status"
                         >
-                            ${escapeHtml(
-                                user.status || "Active"
-                            )}
+                            Active
                         </span>
 
                     </td>
 
+
                     <td>
 
                         <button
+                            type="button"
                             class="view-btn"
-                            onclick="viewUser(
-                                ${Number(user.id) || 0}
-                            )"
+                            onclick="viewUser(${Number(userId) || 0})"
                         >
                             View
                         </button>
@@ -369,6 +657,7 @@ function renderUsers(users) {
             `;
 
         }).join("");
+
 }
 
 
@@ -394,25 +683,32 @@ function searchUsers() {
 
 
     const filtered =
-        allUsers.filter(user => {
+        allUsers.filter(
+            function (user) {
 
-            const text = `
+                const text = `
 
-                ${user.full_name || ""}
+                    ${user.full_name || ""}
 
-                ${user.email || ""}
+                    ${user.email || ""}
 
-                ${user.phone || ""}
+                    ${user.phone || ""}
 
-            `.toLowerCase();
-
-
-            return text.includes(search);
-
-        });
+                `.toLowerCase();
 
 
-    renderUsers(filtered);
+                return text.includes(
+                    search
+                );
+
+            }
+        );
+
+
+    renderUsers(
+        filtered
+    );
+
 }
 
 
@@ -424,51 +720,111 @@ function viewUser(userId) {
 
     const user =
         allUsers.find(
-            item =>
-                Number(item.id) ===
-                Number(userId)
+            function (item) {
+
+                return Number(
+                    item.user_id ??
+                    item.id
+                ) ===
+                    Number(userId);
+
+            }
         );
 
 
-    if (!user) return;
+    if (!user) {
+
+        alert(
+            "User information not found."
+        );
+
+        return;
+
+    }
 
 
-    document.getElementById(
-        "detailName"
-    ).textContent =
-        user.full_name || "-";
+    const detailName =
+        document.getElementById(
+            "detailName"
+        );
 
 
-    document.getElementById(
-        "detailPhone"
-    ).textContent =
-        user.phone || "-";
+    const detailPhone =
+        document.getElementById(
+            "detailPhone"
+        );
 
 
-    document.getElementById(
-        "detailEmail"
-    ).textContent =
-        user.email || "-";
+    const detailEmail =
+        document.getElementById(
+            "detailEmail"
+        );
 
 
-    document.getElementById(
-        "detailDate"
-    ).textContent =
-        user.registered_at || "-";
+    const detailDate =
+        document.getElementById(
+            "detailDate"
+        );
 
 
-    document.getElementById(
-        "userDetails"
-    ).style.display = "block";
+    if (detailName) {
+
+        detailName.textContent =
+            user.full_name || "-";
+
+    }
 
 
-    document.getElementById(
-        "userDetails"
-    ).scrollIntoView({
-        behavior: "smooth"
-    });
+    if (detailPhone) {
+
+        detailPhone.textContent =
+            user.phone || "-";
+
+    }
+
+
+    if (detailEmail) {
+
+        detailEmail.textContent =
+            user.email || "-";
+
+    }
+
+
+    if (detailDate) {
+
+        detailDate.textContent =
+            user.registered_at ??
+            user.created_at ??
+            "-";
+
+    }
+
+
+    const details =
+        document.getElementById(
+            "userDetails"
+        );
+
+
+    if (details) {
+
+        details.style.display =
+            "block";
+
+
+        details.scrollIntoView({
+            behavior: "smooth"
+        });
+
+    }
+
 }
 
+
+/* =========================================================
+   CLOSE USER DETAILS
+========================================================= */
 
 function closeUserDetails() {
 
@@ -484,6 +840,7 @@ function closeUserDetails() {
             "none";
 
     }
+
 }
 
 
@@ -513,7 +870,9 @@ async function loadDevices() {
         );
 
 
-    } catch (error) {
+    }
+
+    catch (error) {
 
         console.error(
             "Loading devices failed:",
@@ -538,8 +897,13 @@ async function loadDevices() {
         }
 
     }
+
 }
 
+
+/* =========================================================
+   RENDER DEVICES
+========================================================= */
 
 function renderDevices(devices) {
 
@@ -561,11 +925,18 @@ function renderDevices(devices) {
             );
 
         return;
+
     }
 
 
     body.innerHTML =
-        devices.map(device => {
+        devices.map(function (device) {
+
+            const deviceId =
+                device.device_id ??
+                device.id ??
+                "";
+
 
             const total =
                 Number(
@@ -602,11 +973,15 @@ function renderDevices(devices) {
                 statusClass =
                     "out-status";
 
-            } else if (
+            }
+
+            else if (
                 available <=
                 Math.max(
                     1,
-                    Math.floor(total * 0.2)
+                    Math.floor(
+                        total * 0.2
+                    )
                 )
             ) {
 
@@ -625,51 +1000,51 @@ function renderDevices(devices) {
 
                     <td>
                         ${escapeHtml(
-                            device.device_id ??
-                            device.id ??
+                            deviceId
+                        )}
+                    </td>
+
+
+                    <td>
+                        ${escapeHtml(
+                            device.device_name ||
                             ""
                         )}
                     </td>
 
-                    <td>
-                        ${escapeHtml(
-                            device.device_name ??
-                            ""
-                        )}
-                    </td>
 
                     <td>
                         ${total}
                     </td>
 
+
                     <td>
                         ${available}
                     </td>
 
+
                     <td>
                         ${borrowed}
                     </td>
+
 
                     <td>
 
                         <span
                             class="status ${statusClass}"
                         >
-                            ${status}
+                            ${escapeHtml(status)}
                         </span>
 
                     </td>
 
+
                     <td>
 
                         <button
+                            type="button"
                             class="view-btn"
-                            onclick="viewDevice(
-                                ${Number(
-                                    device.device_id ??
-                                    device.id
-                                ) || 0}
-                            )"
+                            onclick="viewDevice(${Number(deviceId) || 0})"
                         >
                             View
                         </button>
@@ -681,6 +1056,7 @@ function renderDevices(devices) {
             `;
 
         }).join("");
+
 }
 
 
@@ -717,12 +1093,25 @@ function addDevice() {
     }
 
 
-    document.getElementById(
-        "addDeviceModal"
-    ).style.display =
-        "flex";
+    const modal =
+        document.getElementById(
+            "addDeviceModal"
+        );
+
+
+    if (modal) {
+
+        modal.style.display =
+            "flex";
+
+    }
+
 }
 
+
+/* =========================================================
+   CLOSE ADD DEVICE
+========================================================= */
 
 function closeAddDevice() {
 
@@ -738,10 +1127,17 @@ function closeAddDevice() {
             "none";
 
     }
+
 }
 
 
-async function submitAddDevice(event) {
+/* =========================================================
+   SUBMIT ADD DEVICE
+========================================================= */
+
+async function submitAddDevice(
+    event
+) {
 
     event.preventDefault();
 
@@ -752,29 +1148,59 @@ async function submitAddDevice(event) {
         );
 
 
+    const deviceName =
+        document.getElementById(
+            "deviceName"
+        );
+
+
+    const deviceTotal =
+        document.getElementById(
+            "deviceTotal"
+        );
+
+
+    const deviceCategory =
+        document.getElementById(
+            "deviceCategory"
+        );
+
+
+    const deviceDescription =
+        document.getElementById(
+            "deviceDescription"
+        );
+
+
+    if (
+        !deviceName ||
+        !deviceTotal
+    ) {
+
+        return;
+
+    }
+
+
     const payload = {
 
         device_name:
-            document.getElementById(
-                "deviceName"
-            ).value.trim(),
+            deviceName.value.trim(),
 
         total_quantity:
             Number(
-                document.getElementById(
-                    "deviceTotal"
-                ).value
+                deviceTotal.value
             ),
 
         category:
-            document.getElementById(
-                "deviceCategory"
-            ).value.trim(),
+            deviceCategory
+                ? deviceCategory.value.trim()
+                : "",
 
         description:
-            document.getElementById(
-                "deviceDescription"
-            ).value.trim()
+            deviceDescription
+                ? deviceDescription.value.trim()
+                : ""
 
     };
 
@@ -784,10 +1210,15 @@ async function submitAddDevice(event) {
         payload.total_quantity < 1
     ) {
 
-        message.textContent =
-            "Please enter valid device information.";
+        if (message) {
+
+            message.textContent =
+                "Please enter valid device information.";
+
+        }
 
         return;
+
     }
 
 
@@ -807,9 +1238,13 @@ async function submitAddDevice(event) {
             );
 
 
-        message.textContent =
-            data.message ||
-            "Device added successfully.";
+        if (message) {
+
+            message.textContent =
+                data.message ||
+                "Device added successfully.";
+
+        }
 
 
         await loadDevices();
@@ -818,17 +1253,27 @@ async function submitAddDevice(event) {
 
 
         setTimeout(
-            closeAddDevice,
+            function () {
+
+                closeAddDevice();
+
+            },
             700
         );
 
+    }
 
-    } catch (error) {
+    catch (error) {
 
-        message.textContent =
-            error.message;
+        if (message) {
+
+            message.textContent =
+                error.message;
+
+        }
 
     }
+
 }
 
 
@@ -858,28 +1303,58 @@ async function loadBorrowings() {
         );
 
 
-        updateBadge(
-            "borrowingBadge",
+        const borrowedCount =
             allBorrowings.filter(
-                item =>
-                    String(
+                function (item) {
+
+                    return String(
                         item.status || ""
                     ).toLowerCase() ===
-                    "borrowed"
-            ).length
+                        "borrowed";
+
+                }
+            ).length;
+
+
+        updateBadge(
+            "borrowingBadge",
+            borrowedCount
         );
 
+    }
 
-    } catch (error) {
+    catch (error) {
 
         console.error(
             "Loading borrowings failed:",
             error
         );
 
+
+        const body =
+            document.getElementById(
+                "borrowingsTableBody"
+            );
+
+
+        if (body) {
+
+            body.innerHTML =
+                emptyRow(
+                    8,
+                    "Unable to load borrowing records."
+                );
+
+        }
+
     }
+
 }
 
+
+/* =========================================================
+   RENDER BORROWINGS
+========================================================= */
 
 function renderBorrowings(
     borrowings
@@ -903,122 +1378,162 @@ function renderBorrowings(
             );
 
         return;
+
     }
 
 
     body.innerHTML =
-        borrowings.map(item => {
+        borrowings.map(
+            function (item) {
 
-            const status =
-                item.status ||
-                "Borrowed";
+                const borrowingId =
+                    item.borrowing_id ??
+                    item.borrow_id ??
+                    item.id ??
+                    "";
 
 
-            let statusClass =
-                "borrowed-status";
+                const userName =
+                    item.full_name ??
+                    item.user ??
+                    item.user_name ??
+                    "Unknown User";
 
 
-            if (
-                status.toLowerCase() ===
-                "returned"
-            ) {
+                const deviceName =
+                    item.device_name ??
+                    item.device ??
+                    "";
 
-                statusClass =
-                    "returned-status";
 
-            } else if (
-                status.toLowerCase() ===
-                "overdue"
-            ) {
+                const quantity =
+                    item.quantity ??
+                    0;
 
-                statusClass =
-                    "overdue-status";
+
+                const borrowDate =
+                    item.borrow_date ??
+                    item.borrowed_date ??
+                    item.date ??
+                    "";
+
+
+                const borrowTime =
+                    item.borrow_time ??
+                    item.time ??
+                    "";
+
+
+                const status =
+                    item.status ||
+                    "Borrowed";
+
+
+                let statusClass =
+                    "borrowed-status";
+
+
+                if (
+                    String(status)
+                        .toLowerCase() ===
+                    "returned"
+                ) {
+
+                    statusClass =
+                        "returned-status";
+
+                }
+
+                else if (
+                    String(status)
+                        .toLowerCase() ===
+                    "overdue"
+                ) {
+
+                    statusClass =
+                        "overdue-status";
+
+                }
+
+
+                return `
+
+                    <tr>
+
+                        <td>
+                            ${escapeHtml(
+                                borrowingId
+                            )}
+                        </td>
+
+
+                        <td>
+                            ${escapeHtml(
+                                userName
+                            )}
+                        </td>
+
+
+                        <td>
+                            ${escapeHtml(
+                                deviceName
+                            )}
+                        </td>
+
+
+                        <td>
+                            ${escapeHtml(
+                                quantity
+                            )}
+                        </td>
+
+
+                        <td>
+                            ${escapeHtml(
+                                borrowDate
+                            )}
+                        </td>
+
+
+                        <td>
+                            ${escapeHtml(
+                                borrowTime
+                            )}
+                        </td>
+
+
+                        <td>
+
+                            <span
+                                class="status ${statusClass}"
+                            >
+                                ${escapeHtml(
+                                    status
+                                )}
+                            </span>
+
+                        </td>
+
+
+                        <td>
+
+                            <button
+                                type="button"
+                                class="view-btn"
+                                onclick="viewBorrowing(${Number(borrowingId) || 0})"
+                            >
+                                View
+                            </button>
+
+                        </td>
+
+                    </tr>
+
+                `;
 
             }
+        ).join("");
 
-
-            return `
-
-                <tr>
-
-                    <td>
-                        ${escapeHtml(
-                            item.borrow_id ??
-                            item.id ??
-                            ""
-                        )}
-                    </td>
-
-                    <td>
-                        ${escapeHtml(
-                            item.user ??
-                            item.user_name ??
-                            ""
-                        )}
-                    </td>
-
-                    <td>
-                        ${escapeHtml(
-                            item.device ??
-                            item.device_name ??
-                            ""
-                        )}
-                    </td>
-
-                    <td>
-                        ${escapeHtml(
-                            item.quantity ??
-                            ""
-                        )}
-                    </td>
-
-                    <td>
-                        ${escapeHtml(
-                            item.borrowed_date ??
-                            ""
-                        )}
-                    </td>
-
-                    <td>
-                        ${escapeHtml(
-                            item.return_date ??
-                            "-"
-                        )}
-                    </td>
-
-                    <td>
-
-                        <span
-                            class="status ${statusClass}"
-                        >
-                            ${escapeHtml(
-                                status
-                            )}
-                        </span>
-
-                    </td>
-
-                    <td>
-
-                        <button
-                            class="view-btn"
-                            onclick="viewBorrowing(
-                                ${Number(
-                                    item.borrow_id ??
-                                    item.id
-                                ) || 0}
-                            )"
-                        >
-                            View
-                        </button>
-
-                    </td>
-
-                </tr>
-
-            `;
-
-        }).join("");
 }
 
 
@@ -1048,35 +1563,63 @@ async function loadFeedback() {
         );
 
 
-        const unread =
-            allFeedback.filter(
-                item =>
-                    !item.is_read
-            ).length;
-
-
         updateBadge(
             "feedbackBadge",
-            unread
-        );
-
-
-        updateBadge(
-            "totalFeedback",
             allFeedback.length
         );
 
 
-    } catch (error) {
+        const totalFeedback =
+            document.getElementById(
+                "totalFeedback"
+            );
+
+
+        if (totalFeedback) {
+
+            totalFeedback.textContent =
+                allFeedback.length;
+
+        }
+
+    }
+
+    catch (error) {
 
         console.error(
             "Loading feedback failed:",
             error
         );
 
+
+        const container =
+            document.getElementById(
+                "feedbackContainer"
+            );
+
+
+        if (container) {
+
+            container.innerHTML = `
+
+                <div class="empty-feedback">
+
+                    Unable to load feedback.
+
+                </div>
+
+            `;
+
+        }
+
     }
+
 }
 
+
+/* =========================================================
+   RENDER FEEDBACK
+========================================================= */
 
 function renderFeedback(
     feedback
@@ -1104,272 +1647,118 @@ function renderFeedback(
         `;
 
         return;
+
     }
 
 
     container.innerHTML =
-        feedback.map(item => {
+        feedback.map(
+            function (item) {
 
-            return `
+                /*
+                 * IMPORTANT:
+                 * Backend feedback.py returns:
+                 *
+                 * full_name
+                 * email
+                 * description
+                 * submitted_at
+                 *
+                 * NOT:
+                 * user_name
+                 * message
+                 * created_at
+                 */
 
-                <div
-                    class="feedback-card"
-                >
-
-                    <div
-                        class="feedback-user"
-                    >
-
-                        <div
-                            class="feedback-avatar"
-                        >
-                            ${escapeHtml(
-                                initials(
-                                    item.user_name ||
-                                    "User"
-                                )
-                            )}
-                        </div>
-
-                        <div>
-
-                            <div
-                                class="feedback-name"
-                            >
-                                ${escapeHtml(
-                                    item.user_name ||
-                                    "Unknown User"
-                                )}
-                            </div>
-
-                            <div
-                                class="feedback-date"
-                            >
-                                ${escapeHtml(
-                                    item.created_at ||
-                                    ""
-                                )}
-                            </div>
-
-                        </div>
-
-                    </div>
+                const name =
+                    item.full_name ||
+                    "Unknown User";
 
 
-                    <div
-                        class="feedback-message"
-                    >
-                        ${escapeHtml(
-                            item.message ||
-                            ""
-                        )}
-                    </div>
+                const email =
+                    item.email ||
+                    "";
 
 
-                    <span
-                        class="feedback-category"
-                    >
-                        ${escapeHtml(
-                            item.category ||
-                            "Other"
-                        )}
-                    </span>
-
-                </div>
-
-            `;
-
-        }).join("");
-}
+                const description =
+                    item.description ||
+                    "";
 
 
-/* =========================================================
-   NOTIFICATIONS
-========================================================= */
+                const submittedAt =
+                    item.submitted_at ||
+                    "";
 
-async function loadNotifications() {
-
-    try {
-
-        const data =
-            await apiRequest(
-                "/admin/notifications"
-            );
-
-
-        const notifications =
-            data.notifications || [];
-
-
-        const unread =
-            notifications.filter(
-                item =>
-                    !item.is_read
-            ).length;
-
-
-        updateBadge(
-            "notificationBadge",
-            unread
-        );
-
-
-        const list =
-            document.getElementById(
-                "notificationList"
-            );
-
-
-        if (!list) return;
-
-
-        if (!notifications.length) {
-
-            list.innerHTML = `
-
-                <div
-                    style="
-                        padding:20px;
-                        text-align:center;
-                        color:#94a3b8;
-                    "
-                >
-                    No new notifications.
-                </div>
-
-            `;
-
-            return;
-        }
-
-
-        list.innerHTML =
-            notifications.map(item => {
 
                 return `
 
                     <div
-                        class="notification-item"
-                        onclick="markNotificationRead(
-                            ${Number(item.id) || 0}
-                        )"
+                        class="feedback-card"
                     >
 
-                        <strong>
-                            ${escapeHtml(
-                                item.title ||
-                                "Notification"
-                            )}
-                        </strong>
+                        <div
+                            class="feedback-user"
+                        >
 
-                        <p>
-                            ${escapeHtml(
-                                item.message ||
-                                ""
-                            )}
-                        </p>
+                            <div
+                                class="feedback-avatar"
+                            >
 
-                        <small>
+                                ${escapeHtml(
+                                    initials(name)
+                                )}
+
+                            </div>
+
+
+                            <div>
+
+                                <div
+                                    class="feedback-name"
+                                >
+                                    ${escapeHtml(
+                                        name
+                                    )}
+                                </div>
+
+
+                                <div
+                                    class="feedback-date"
+                                >
+                                    ${escapeHtml(
+                                        email
+                                    )}
+                                </div>
+
+
+                                <div
+                                    class="feedback-date"
+                                >
+                                    ${escapeHtml(
+                                        submittedAt
+                                    )}
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <div
+                            class="feedback-message"
+                        >
                             ${escapeHtml(
-                                item.created_at ||
-                                ""
+                                description
                             )}
-                        </small>
+                        </div>
 
                     </div>
 
                 `;
 
-            }).join("");
-
-
-    } catch (error) {
-
-        console.error(
-            "Notifications:",
-            error
-        );
-
-    }
-}
-
-
-function showNotifications() {
-
-    const panel =
-        document.getElementById(
-            "notificationPanel"
-        );
-
-
-    if (!panel) return;
-
-
-    if (
-        panel.style.display ===
-        "none"
-    ) {
-
-        panel.style.display =
-            "block";
-
-
-        loadNotifications();
-
-    } else {
-
-        panel.style.display =
-            "none";
-
-    }
-}
-
-
-function closeNotifications() {
-
-    const panel =
-        document.getElementById(
-            "notificationPanel"
-        );
-
-
-    if (panel) {
-
-        panel.style.display =
-            "none";
-
-    }
-}
-
-
-async function markNotificationRead(
-    id
-) {
-
-    if (!id) return;
-
-
-    try {
-
-        await apiRequest(
-            `/admin/notifications/${id}/read`,
-            {
-                method: "PATCH"
             }
-        );
+        ).join("");
 
-
-        await loadNotifications();
-
-
-    } catch (error) {
-
-        console.error(
-            "Notification:",
-            error
-        );
-
-    }
 }
 
 
@@ -1379,12 +1768,42 @@ async function markNotificationRead(
 
 async function loadReports() {
 
+    /*
+     * The current admin.py you provided does not yet
+     * have /admin/reports.
+     *
+     * Therefore we generate reports from the data
+     * already available.
+     */
+
     try {
 
-        const data =
-            await apiRequest(
-                "/admin/reports"
-            );
+        if (!allDevices.length) {
+
+            const deviceData =
+                await apiRequest(
+                    "/admin/devices"
+                );
+
+
+            allDevices =
+                deviceData.devices || [];
+
+        }
+
+
+        if (!allBorrowings.length) {
+
+            const borrowingData =
+                await apiRequest(
+                    "/admin/borrowings"
+                );
+
+
+            allBorrowings =
+                borrowingData.borrowings || [];
+
+        }
 
 
         const deviceReport =
@@ -1399,42 +1818,148 @@ async function loadReports() {
             );
 
 
-        if (
-            data.device_usage &&
-            deviceReport
-        ) {
+        /* -----------------------------------------
+           DEVICE REPORT
+        ----------------------------------------- */
+
+        if (deviceReport) {
+
+            const deviceRows =
+                allDevices.map(
+                    function (device) {
+
+                        const total =
+                            Number(
+                                device.total_quantity ||
+                                0
+                            );
+
+
+                        const available =
+                            Number(
+                                device.available_quantity ||
+                                0
+                            );
+
+
+                        const borrowed =
+                            Math.max(
+                                total -
+                                available,
+                                0
+                            );
+
+
+                        return {
+
+                            name:
+                                device.device_name,
+
+                            borrowed:
+                                borrowed
+
+                        };
+
+                    }
+                );
+
 
             deviceReport.innerHTML =
                 renderReportRows(
-                    data.device_usage
+                    deviceRows
                 );
 
         }
 
 
-        if (
-            data.borrowing_summary &&
-            borrowingReport
-        ) {
+        /* -----------------------------------------
+           BORROWING REPORT
+        ----------------------------------------- */
+
+        if (borrowingReport) {
+
+            const totalBorrowings =
+                allBorrowings.length;
+
+
+            const totalQuantity =
+                allBorrowings.reduce(
+                    function (total, item) {
+
+                        return total +
+                            Number(
+                                item.quantity || 0
+                            );
+
+                    },
+                    0
+                );
+
+
+            const currentlyBorrowed =
+                allBorrowings.filter(
+                    function (item) {
+
+                        return String(
+                            item.status || ""
+                        ).toLowerCase() ===
+                            "borrowed";
+
+                    }
+                ).length;
+
 
             borrowingReport.innerHTML =
-                renderReportRows(
-                    data.borrowing_summary
-                );
+                renderReportRows([
+
+                    {
+                        name:
+                            "Total Borrowing Records",
+
+                        value:
+                            totalBorrowings
+
+                    },
+
+                    {
+                        name:
+                            "Total Devices Borrowed",
+
+                        value:
+                            totalQuantity
+
+                    },
+
+                    {
+                        name:
+                            "Currently Borrowed",
+
+                        value:
+                            currentlyBorrowed
+
+                    }
+
+                ]);
 
         }
 
+    }
 
-    } catch (error) {
+    catch (error) {
 
         console.error(
-            "Reports:",
+            "Reports error:",
             error
         );
 
     }
+
 }
 
+
+/* =========================================================
+   RENDER REPORT ROWS
+========================================================= */
 
 function renderReportRows(
     rows
@@ -1447,6 +1972,7 @@ function renderReportRows(
     ) {
 
         return `
+
             <p
                 style="
                     color:#94a3b8;
@@ -1455,78 +1981,114 @@ function renderReportRows(
             >
                 No report data yet.
             </p>
+
         `;
 
     }
 
 
-    return rows.map(row => {
+    return rows.map(
+        function (row) {
 
-        const values =
-            Object.values(row);
+            const values =
+                Object.values(row);
 
 
-        return `
+            return `
 
-            <div class="report-row">
+                <div
+                    class="report-row"
+                >
 
-                <span>
-                    ${escapeHtml(
-                        values[0] ?? ""
-                    )}
-                </span>
+                    <span>
+                        ${escapeHtml(
+                            values[0] ?? ""
+                        )}
+                    </span>
 
-                <strong>
-                    ${escapeHtml(
-                        values[1] ?? ""
-                    )}
-                </strong>
 
-            </div>
+                    <strong>
+                        ${escapeHtml(
+                            values[1] ?? ""
+                        )}
+                    </strong>
 
-        `;
+                </div>
 
-    }).join("");
+            `;
+
+        }
+    ).join("");
+
 }
 
 
 /* =========================================================
-   VIEW FUNCTIONS
+   VIEW DEVICE
 ========================================================= */
 
-function viewDevice(deviceId) {
+function viewDevice(
+    deviceId
+) {
 
     const device =
         allDevices.find(
-            item =>
-                Number(
+            function (item) {
+
+                return Number(
                     item.device_id ??
                     item.id
                 ) ===
-                Number(deviceId)
+                    Number(deviceId);
+
+            }
         );
 
 
-    if (!device) return;
+    if (!device) {
+
+        alert(
+            "Device information not found."
+        );
+
+        return;
+
+    }
 
 
     alert(
 
-        `Device: ${
-            device.device_name || ""
-        }\n\n` +
+        "Device: " +
+        (device.device_name || "") +
 
-        `Total: ${
-            device.total_quantity ?? 0
-        }\n` +
+        "\n\n" +
 
-        `Available: ${
-            device.available_quantity ?? 0
-        }`
+        "Device Code: " +
+        (device.device_code || "-") +
+
+        "\n" +
+
+        "Category: " +
+        (device.category || "-") +
+
+        "\n" +
+
+        "Total Quantity: " +
+        (device.total_quantity ?? 0) +
+
+        "\n" +
+
+        "Available Quantity: " +
+        (device.available_quantity ?? 0)
 
     );
+
 }
 
+
+/* =========================================================
+   VIEW BORROWING
+========================================================= */
 
 function viewBorrowing(
     borrowingId
@@ -1534,47 +2096,101 @@ function viewBorrowing(
 
     const item =
         allBorrowings.find(
-            borrowing =>
-                Number(
+            function (borrowing) {
+
+                return Number(
+                    borrowing.borrowing_id ??
                     borrowing.borrow_id ??
                     borrowing.id
                 ) ===
-                Number(borrowingId)
+                    Number(borrowingId);
+
+            }
         );
 
 
-    if (!item) return;
+    if (!item) {
+
+        alert(
+            "Borrowing information not found."
+        );
+
+        return;
+
+    }
 
 
     alert(
 
-        `Borrow ID: ${
+        "Borrowing ID: " +
+        (
+            item.borrowing_id ??
             item.borrow_id ??
             item.id ??
             ""
-        }\n\n` +
+        ) +
 
-        `User: ${
+        "\n\n" +
+
+        "User: " +
+        (
+            item.full_name ??
             item.user ??
             item.user_name ??
             ""
-        }\n` +
+        ) +
 
-        `Device: ${
-            item.device ??
-            item.device_name ??
+        "\n" +
+
+        "Email: " +
+        (
+            item.email ??
             ""
-        }\n` +
+        ) +
 
-        `Quantity: ${
-            item.quantity ?? ""
-        }\n` +
+        "\n" +
 
-        `Status: ${
-            item.status ?? ""
-        }`
+        "Device: " +
+        (
+            item.device_name ??
+            item.device ??
+            ""
+        ) +
+
+        "\n" +
+
+        "Quantity: " +
+        (
+            item.quantity ??
+            ""
+        ) +
+
+        "\n" +
+
+        "Borrow Date: " +
+        (
+            item.borrow_date ??
+            ""
+        ) +
+
+        "\n" +
+
+        "Borrow Time: " +
+        (
+            item.borrow_time ??
+            ""
+        ) +
+
+        "\n" +
+
+        "Status: " +
+        (
+            item.status ??
+            ""
+        )
 
     );
+
 }
 
 
@@ -1588,7 +2204,9 @@ function updateBadge(
 ) {
 
     const badge =
-        document.getElementById(id);
+        document.getElementById(
+            id
+        );
 
 
     if (!badge) return;
@@ -1598,22 +2216,27 @@ function updateBadge(
         count;
 
 
-    if (Number(count) > 0) {
+    if (
+        Number(count) > 0
+    ) {
 
         badge.style.display =
             "inline-flex";
 
-    } else {
+    }
+
+    else {
 
         badge.style.display =
             "none";
 
     }
+
 }
 
 
 /* =========================================================
-   HELPERS
+   EMPTY TABLE ROW
 ========================================================= */
 
 function emptyRow(
@@ -1629,54 +2252,83 @@ function emptyRow(
                 colspan="${columns}"
                 class="empty-state"
             >
-                ${escapeHtml(text)}
+
+                ${escapeHtml(
+                    text
+                )}
+
             </td>
 
         </tr>
 
     `;
+
 }
 
 
-function initials(name) {
+/* =========================================================
+   INITIALS
+========================================================= */
+
+function initials(
+    name
+) {
 
     return String(name)
         .trim()
         .split(/\s+/)
         .slice(0, 2)
         .map(
-            part =>
-                part
+            function (part) {
+
+                return part
                     .charAt(0)
-                    .toUpperCase()
+                    .toUpperCase();
+
+            }
         )
         .join("");
+
 }
 
 
-function escapeHtml(value) {
+/* =========================================================
+   ESCAPE HTML
+========================================================= */
 
-    return String(value ?? "")
+function escapeHtml(
+    value
+) {
+
+    return String(
+        value ?? ""
+    )
+
         .replace(
             /&/g,
             "&amp;"
         )
+
         .replace(
             /</g,
             "&lt;"
         )
+
         .replace(
             />/g,
             "&gt;"
         )
+
         .replace(
             /"/g,
             "&quot;"
         )
+
         .replace(
             /'/g,
             "&#039;"
         );
+
 }
 
 
@@ -1692,34 +2344,56 @@ function adminLogout() {
         );
 
 
-    if (!confirmed) return;
+    if (!confirmed) {
+
+        return;
+
+    }
 
 
     localStorage.removeItem(
         "loggedInUser"
     );
 
+
     localStorage.removeItem(
         "user"
     );
+
 
     localStorage.removeItem(
         "admin"
     );
 
 
+    localStorage.removeItem(
+        "user_id"
+    );
+
+
+    localStorage.removeItem(
+        "user_full_name"
+    );
+
+
+    localStorage.removeItem(
+        "user_email"
+    );
+
+
     window.location.href =
         "home.html";
+
 }
 
 
 /* =========================================================
-   CLOSE MODAL WHEN CLICKING OUTSIDE
+   CLOSE ADD DEVICE MODAL WHEN CLICKING OUTSIDE
 ========================================================= */
 
 window.addEventListener(
     "click",
-    function(event) {
+    function (event) {
 
         const modal =
             document.getElementById(

@@ -3,9 +3,9 @@ from datetime import datetime
 from database import get_db_connection
 
 
-# ==========================================
+# =====================================================
 # BORROW DEVICE
-# ==========================================
+# =====================================================
 
 def borrow_device(
     user_id,
@@ -21,40 +21,75 @@ def borrow_device(
 
     try:
 
+        # =================================================
+        # START TRANSACTION
+        # =================================================
+
         connection.start_transaction()
 
 
-        # ==================================
+        # =================================================
         # VALIDATE QUANTITY
-        # ==================================
+        # =================================================
 
         if quantity <= 0:
 
             connection.rollback()
 
             return {
-
                 "success": False,
-
                 "message":
                     "Quantity must be greater than zero."
-
             }
 
 
-        # ==================================
-        # GET DEVICE
-        # ==================================
+        # =================================================
+        # GET USER
+        # =================================================
 
         cursor.execute("""
             SELECT
+                user_id,
+                full_name,
+                email
 
+            FROM users
+
+            WHERE user_id = %s
+
+            LIMIT 1
+
+        """, (
+            user_id,
+        ))
+
+        user = cursor.fetchone()
+
+
+        # =================================================
+        # USER NOT FOUND
+        # =================================================
+
+        if not user:
+
+            connection.rollback()
+
+            return {
+                "success": False,
+                "message":
+                    "User not found."
+            }
+
+
+        # =================================================
+        # GET DEVICE
+        # =================================================
+
+        cursor.execute("""
+            SELECT
                 device_id,
-
                 device_code,
-
                 device_name,
-
                 available_quantity
 
             FROM devices
@@ -63,50 +98,56 @@ def borrow_device(
 
             FOR UPDATE
 
-        """, (device_id,))
-
+        """, (
+            device_id,
+        ))
 
         device = cursor.fetchone()
 
+
+        # =================================================
+        # DEVICE NOT FOUND
+        # =================================================
 
         if not device:
 
             connection.rollback()
 
             return {
-
                 "success": False,
-
                 "message":
                     "Device not found."
-
             }
 
 
-        # ==================================
-        # CHECK AVAILABILITY
-        # ==================================
+        # =================================================
+        # CHECK AVAILABLE QUANTITY
+        # =================================================
 
-        if quantity > device["available_quantity"]:
+        available_quantity = int(
+            device.get(
+                "available_quantity",
+                0
+            )
+        )
+
+
+        if quantity > available_quantity:
 
             connection.rollback()
 
             return {
-
                 "success": False,
-
                 "message":
-                    f"Only "
-                    f"{device['available_quantity']} "
+                    f"Only {available_quantity} "
                     f"{device['device_name']}(s) "
                     f"available."
-
             }
 
 
-        # ==================================
+        # =================================================
         # CURRENT DATE AND TIME
-        # ==================================
+        # =================================================
 
         now = datetime.now()
 
@@ -115,9 +156,9 @@ def borrow_device(
         borrow_time = now.time()
 
 
-        # ==================================
-        # INSERT BORROWING
-        # ==================================
+        # =================================================
+        # INSERT BORROWING RECORD
+        # =================================================
 
         cursor.execute("""
             INSERT INTO borrowing
@@ -131,7 +172,14 @@ def borrow_device(
             )
 
             VALUES
-            (%s, %s, %s, %s, %s, %s)
+            (
+                %s,
+                %s,
+                %s,
+                %s,
+                %s,
+                %s
+            )
 
         """, (
             user_id,
@@ -143,9 +191,16 @@ def borrow_device(
         ))
 
 
-        # ==================================
+        # =================================================
+        # GET BORROWING ID
+        # =================================================
+
+        borrowing_id = cursor.lastrowid
+
+
+        # =================================================
         # REDUCE AVAILABLE QUANTITY
-        # ==================================
+        # =================================================
 
         cursor.execute("""
             UPDATE devices
@@ -161,8 +216,49 @@ def borrow_device(
         ))
 
 
+        # =================================================
+        # CREATE ADMIN NOTIFICATION
+        # =================================================
+
+        notification_message = (
+            f"{user['full_name']} borrowed "
+            f"{quantity} x "
+            f"{device['device_name']}."
+        )
+
+
+        cursor.execute("""
+            INSERT INTO notifications
+            (
+                title,
+                message,
+                is_read
+            )
+
+            VALUES
+            (
+                %s,
+                %s,
+                %s
+            )
+
+        """, (
+            "New Device Borrowing",
+            notification_message,
+            0
+        ))
+
+
+        # =================================================
+        # COMMIT EVERYTHING
+        # =================================================
+
         connection.commit()
 
+
+        # =================================================
+        # SUCCESS RESPONSE
+        # =================================================
 
         return {
 
@@ -171,6 +267,9 @@ def borrow_device(
             "message":
                 f"{device['device_name']} "
                 f"successfully borrowed.",
+
+            "borrowing_id":
+                borrowing_id,
 
             "device_name":
                 device["device_name"],
@@ -185,11 +284,17 @@ def borrow_device(
 
         connection.rollback()
 
+        print(
+            "Borrow device error:",
+            error
+        )
+
         return {
 
             "success": False,
 
-            "message": str(error)
+            "message":
+                str(error)
 
         }
 
@@ -201,11 +306,13 @@ def borrow_device(
         connection.close()
 
 
-# ==========================================
+# =====================================================
 # GET USER BORROWING REPORT
-# ==========================================
+# =====================================================
 
-def get_user_borrowings(user_id):
+def get_user_borrowings(
+    user_id
+):
 
     connection = get_db_connection()
 
@@ -244,8 +351,9 @@ def get_user_borrowings(user_id):
             ORDER BY
                 borrowing.borrowing_id DESC
 
-        """, (user_id,))
-
+        """, (
+            user_id,
+        ))
 
         return cursor.fetchall()
 
@@ -257,9 +365,9 @@ def get_user_borrowings(user_id):
         connection.close()
 
 
-# ==========================================
+# =====================================================
 # GET ALL BORROWINGS - ADMIN
-# ==========================================
+# =====================================================
 
 def get_all_borrowings():
 
@@ -276,9 +384,13 @@ def get_all_borrowings():
 
                 borrowing.borrowing_id,
 
+                users.user_id,
+
                 users.full_name,
 
                 users.email,
+
+                devices.device_id,
 
                 devices.device_code,
 
@@ -308,7 +420,6 @@ def get_all_borrowings():
                 borrowing.borrowing_id DESC
 
         """)
-
 
         return cursor.fetchall()
 

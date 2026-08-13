@@ -585,6 +585,76 @@
         }
 
 
+        .submit-btn:disabled {
+            background-color: #999;
+
+            cursor: not-allowed;
+        }
+
+
+        /* =====================================================
+           MESSAGE
+        ===================================================== */
+
+        .message {
+            margin-top: 15px;
+
+            text-align: center;
+
+            font-size: 14px;
+
+            font-weight: bold;
+        }
+
+
+        .success-message {
+            color: #16803c;
+        }
+
+
+        .error-message {
+            color: #c62828;
+        }
+
+
+        /* =====================================================
+           STATUS
+        ===================================================== */
+
+        .status {
+            display: inline-block;
+
+            padding: 5px 10px;
+
+            border-radius: 20px;
+
+            font-size: 13px;
+
+            font-weight: bold;
+        }
+
+
+        .borrowed-status {
+            background: #fff3cd;
+
+            color: #856404;
+        }
+
+
+        .returned-status {
+            background: #d4edda;
+
+            color: #155724;
+        }
+
+
+        .overdue-status {
+            background: #f8d7da;
+
+            color: #721c24;
+        }
+
+
         /* =====================================================
            EMPTY STATE
         ===================================================== */
@@ -837,7 +907,7 @@
 
 
         <!-- =================================================
-             HOME MODULE
+             HOME
         ================================================= -->
 
         <section
@@ -880,7 +950,7 @@
 
 
         <!-- =================================================
-             MY DEVICES MODULE
+             MY DEVICES
         ================================================= -->
 
         <section
@@ -898,8 +968,7 @@
                 <p class="device-description">
 
                     Devices available for borrowing
-                    will be added and managed by the
-                    administrator.
+                    are managed by the administrator.
 
                 </p>
 
@@ -956,7 +1025,7 @@
 
 
         <!-- =================================================
-             MY REPORT MODULE
+             MY REPORT
         ================================================= -->
 
         <section
@@ -969,6 +1038,13 @@
                 <h2>
                     My Report
                 </h2>
+
+
+                <p class="device-description">
+
+                    Your device borrowing history.
+
+                </p>
 
 
                 <table>
@@ -1031,7 +1107,7 @@
 
 
         <!-- =================================================
-             FEEDBACK MODULE
+             FEEDBACK
         ================================================= -->
 
         <section
@@ -1061,16 +1137,14 @@
 
                     <div class="form-group">
 
-                        <label
-                            for="feedbackMessage"
-                        >
+                        <label>
                             Feedback / Description
                         </label>
 
 
                         <textarea
                             id="feedbackMessage"
-                            placeholder="Example: Computers are not enough, some devices are not working, or a certain device is finished..."
+                            placeholder="Example: Computers are not enough, some devices are not working..."
                             required
                         ></textarea>
 
@@ -1080,11 +1154,18 @@
                     <button
                         type="submit"
                         class="submit-btn"
+                        id="feedbackSubmitButton"
                     >
 
                         Submit Feedback
 
                     </button>
+
+
+                    <div
+                        id="feedbackStatus"
+                        class="message"
+                    ></div>
 
                 </form>
 
@@ -1110,7 +1191,6 @@
 
     <!-- =====================================================
          JAVASCRIPT
-         ONLY ONE SCRIPT
     ===================================================== -->
 
     <script>
@@ -1124,28 +1204,96 @@
 
 
         /* =====================================================
+           PAGE LOAD
+        ===================================================== */
+
+        document.addEventListener(
+            "DOMContentLoaded",
+            function() {
+
+                /*
+                 * Check whether user session
+                 * information exists.
+                 */
+
+                const user =
+                    getLoggedInUser();
+
+
+                if (
+                    !user.user_id &&
+                    !user.email
+                ) {
+
+                    console.warn(
+                        "No logged-in user information found."
+                    );
+
+                }
+
+
+                /*
+                 * Load available devices.
+                 */
+
+                loadDevices();
+
+
+                /*
+                 * Connect feedback form.
+                 */
+
+                const feedbackForm =
+                    document.getElementById(
+                        "feedbackForm"
+                    );
+
+
+                if (feedbackForm) {
+
+                    feedbackForm.addEventListener(
+                        "submit",
+                        submitFeedback
+                    );
+
+                }
+
+            }
+        );
+
+
+        /* =====================================================
            MENU
         ===================================================== */
 
         function openMenu() {
 
             const sidebar =
-                document.getElementById("sidebar");
+                document.getElementById(
+                    "sidebar"
+                );
+
 
             const overlay =
-                document.getElementById("overlay");
+                document.getElementById(
+                    "overlay"
+                );
 
 
             if (sidebar) {
 
-                sidebar.classList.add("open");
+                sidebar.classList.add(
+                    "open"
+                );
 
             }
 
 
             if (overlay) {
 
-                overlay.classList.add("show");
+                overlay.classList.add(
+                    "show"
+                );
 
             }
 
@@ -1155,22 +1303,31 @@
         function closeMenu() {
 
             const sidebar =
-                document.getElementById("sidebar");
+                document.getElementById(
+                    "sidebar"
+                );
+
 
             const overlay =
-                document.getElementById("overlay");
+                document.getElementById(
+                    "overlay"
+                );
 
 
             if (sidebar) {
 
-                sidebar.classList.remove("open");
+                sidebar.classList.remove(
+                    "open"
+                );
 
             }
 
 
             if (overlay) {
 
-                overlay.classList.remove("show");
+                overlay.classList.remove(
+                    "show"
+                );
 
             }
 
@@ -1186,36 +1343,30 @@
             clickedButton
         ) {
 
-            const modules =
-                document.querySelectorAll(".module");
+            document
+                .querySelectorAll(".module")
+                .forEach(
+                    function(module) {
 
+                        module.classList.remove(
+                            "active"
+                        );
 
-            modules.forEach(
-                function(module) {
-
-                    module.classList.remove(
-                        "active"
-                    );
-
-                }
-            );
-
-
-            const menuItems =
-                document.querySelectorAll(
-                    ".menu-item"
+                    }
                 );
 
 
-            menuItems.forEach(
-                function(item) {
+            document
+                .querySelectorAll(".menu-item")
+                .forEach(
+                    function(item) {
 
-                    item.classList.remove(
-                        "active"
-                    );
+                        item.classList.remove(
+                            "active"
+                        );
 
-                }
-            );
+                    }
+                );
 
 
             const selectedModule =
@@ -1295,11 +1446,14 @@
 
             return {
 
-                user_id: userId,
+                user_id:
+                    userId,
 
-                full_name: fullName,
+                full_name:
+                    fullName,
 
-                email: email
+                email:
+                    email
 
             };
 
@@ -1343,16 +1497,6 @@
 
             try {
 
-                /*
-                 * IMPORTANT:
-                 *
-                 * User frontend uses:
-                 *
-                 * GET /api/devices
-                 *
-                 * NOT /api/admin/devices
-                 */
-
                 const response =
                     await fetch(
                         `${API_URL}/api/devices`
@@ -1360,11 +1504,15 @@
 
 
                 const data =
-                    await response.json();
+                    await response
+                        .json()
+                        .catch(
+                            () => ({})
+                        );
 
 
                 console.log(
-                    "Devices received:",
+                    "Devices response:",
                     data
                 );
 
@@ -1382,7 +1530,12 @@
                                 colspan="4"
                                 class="empty-state"
                             >
-                                Failed to load devices.
+                                ${
+                                    escapeHTML(
+                                        data.message ||
+                                        "Failed to load devices."
+                                    )
+                                }
                             </td>
 
                         </tr>
@@ -1428,12 +1581,6 @@
                 devices.forEach(
                     function(device) {
 
-                        const row =
-                            document.createElement(
-                                "tr"
-                            );
-
-
                         const deviceId =
                             Number(
                                 device.device_id ??
@@ -1446,6 +1593,12 @@
                             Number(
                                 device.available_quantity ??
                                 0
+                            );
+
+
+                        const row =
+                            document.createElement(
+                                "tr"
                             );
 
 
@@ -1475,8 +1628,8 @@
                                     value="1"
                                     ${
                                         available <= 0
-                                        ? "disabled"
-                                        : ""
+                                            ? "disabled"
+                                            : ""
                                     }
                                 >
 
@@ -1491,15 +1644,15 @@
                                     onclick="requestDevice(${deviceId})"
                                     ${
                                         available <= 0
-                                        ? "disabled"
-                                        : ""
+                                            ? "disabled"
+                                            : ""
                                     }
                                 >
 
                                     ${
                                         available <= 0
-                                        ? "Not Available"
-                                        : "Request"
+                                            ? "Not Available"
+                                            : "Borrow"
                                     }
 
                                 </button>
@@ -1546,7 +1699,7 @@
 
 
         /* =====================================================
-           REQUEST / BORROW DEVICE
+           BORROW DEVICE
         ===================================================== */
 
         async function requestDevice(
@@ -1557,10 +1710,11 @@
                 getLoggedInUser();
 
 
-            if (
-                !user.user_id &&
-                !user.email
-            ) {
+            /*
+             * User must have login information.
+             */
+
+            if (!user.user_id) {
 
                 alert(
                     "Your login session was not found. Please login again."
@@ -1600,12 +1754,32 @@
 
 
             if (
-                !quantity ||
-                quantity < 1
+                !Number.isInteger(quantity) ||
+                quantity <= 0
             ) {
 
                 alert(
                     "Please enter a valid quantity."
+                );
+
+                return;
+
+            }
+
+
+            const maxQuantity =
+                Number(
+                    quantityInput.max
+                );
+
+
+            if (
+                maxQuantity &&
+                quantity > maxQuantity
+            ) {
+
+                alert(
+                    `Only ${maxQuantity} device(s) available.`
                 );
 
                 return;
@@ -1620,7 +1794,8 @@
                         `${API_URL}/api/borrowing/borrow`,
                         {
 
-                            method: "POST",
+                            method:
+                                "POST",
 
                             headers: {
 
@@ -1633,21 +1808,16 @@
                                 JSON.stringify({
 
                                     /*
-                                     * Send both.
-                                     *
-                                     * Your backend can use
-                                     * whichever one it expects.
+                                     * IMPORTANT:
+                                     * Backend borrow_device()
+                                     * expects user_id,
+                                     * device_id and quantity.
                                      */
 
                                     user_id:
-                                        user.user_id
-                                        ? Number(
+                                        Number(
                                             user.user_id
-                                        )
-                                        : null,
-
-                                    email:
-                                        user.email,
+                                        ),
 
                                     device_id:
                                         Number(
@@ -1664,7 +1834,11 @@
 
 
                 const data =
-                    await response.json();
+                    await response
+                        .json()
+                        .catch(
+                            () => ({})
+                        );
 
 
                 console.log(
@@ -1680,12 +1854,20 @@
 
                     alert(
                         data.message ||
-                        "Device request submitted successfully."
+                        "Device successfully borrowed."
                     );
 
 
+                    /*
+                     * Refresh available devices.
+                     */
+
                     await loadDevices();
 
+
+                    /*
+                     * Refresh user's report.
+                     */
 
                     await loadMyReport();
 
@@ -1695,7 +1877,7 @@
 
                     alert(
                         data.message ||
-                        "Device request failed."
+                        "Device borrowing failed."
                     );
 
                 }
@@ -1704,13 +1886,14 @@
             } catch (error) {
 
                 console.error(
-                    "Request device error:",
+                    "Borrow device error:",
                     error
                 );
 
 
                 alert(
-                    "Unable to connect to Flask server. Please make sure Flask is running."
+                    "Unable to connect to Flask server. " +
+                    "Please make sure Flask is running."
                 );
 
             }
@@ -1741,10 +1924,7 @@
                 getLoggedInUser();
 
 
-            if (
-                !user.email &&
-                !user.user_id
-            ) {
+            if (!user.user_id) {
 
                 tableBody.innerHTML = `
 
@@ -1784,45 +1964,64 @@
 
             try {
 
-                let response;
-
-
                 /*
-                 * First try the email-based endpoint.
+                 * The backend should provide:
                  *
-                 * This matches the newer backend
-                 * structure you showed earlier.
+                 * GET
+                 * /api/borrowing/user?email=...
+                 *
+                 * OR an equivalent user-id route.
+                 *
+                 * We use email because the backend
+                 * structure you provided already
+                 * uses get_user_by_email().
                  */
 
-                if (user.email) {
+                const email =
+                    user.email;
 
-                    response =
-                        await fetch(
-                            `${API_URL}/api/borrowing/user?email=${encodeURIComponent(
-                                user.email
-                            )}`
-                        );
+
+                if (!email) {
+
+                    tableBody.innerHTML = `
+
+                        <tr>
+
+                            <td
+                                colspan="6"
+                                class="empty-state"
+                            >
+                                User email was not found.
+                                Please login again.
+                            </td>
+
+                        </tr>
+
+                    `;
+
+                    return;
 
                 }
 
-                else {
 
-                    response =
-                        await fetch(
-                            `${API_URL}/api/borrowing/user/${encodeURIComponent(
-                                user.user_id
-                            )}`
-                        );
-
-                }
+                const response =
+                    await fetch(
+                        `${API_URL}/api/borrowing/user?email=${encodeURIComponent(
+                            email
+                        )}`
+                    );
 
 
                 const data =
-                    await response.json();
+                    await response
+                        .json()
+                        .catch(
+                            () => ({})
+                        );
 
 
                 console.log(
-                    "User report:",
+                    "My report response:",
                     data
                 );
 
@@ -1840,7 +2039,12 @@
                                 colspan="6"
                                 class="empty-state"
                             >
-                                Failed to load your report.
+                                ${
+                                    escapeHTML(
+                                        data.message ||
+                                        "Failed to load your report."
+                                    )
+                                }
                             </td>
 
                         </tr>
@@ -1892,40 +2096,63 @@
                             );
 
 
-                        /*
-                         * Support different
-                         * field names from backend.
-                         */
-
                         const deviceId =
                             record.device_code ??
                             record.device_id ??
-                            record.id ??
                             "";
 
 
                         const deviceName =
                             record.device_name ??
-                            record.device ??
                             "";
+
+
+                        const quantity =
+                            record.quantity ??
+                            0;
 
 
                         const date =
                             record.borrow_date ??
-                            record.date ??
-                            record.borrowed_date ??
                             "";
 
 
                         const time =
                             record.borrow_time ??
-                            record.time ??
                             "";
 
 
                         const status =
                             record.status ??
                             "Borrowed";
+
+
+                        let statusClass =
+                            "borrowed-status";
+
+
+                        if (
+                            String(status)
+                                .toLowerCase() ===
+                            "returned"
+                        ) {
+
+                            statusClass =
+                                "returned-status";
+
+                        }
+
+
+                        if (
+                            String(status)
+                                .toLowerCase() ===
+                            "overdue"
+                        ) {
+
+                            statusClass =
+                                "overdue-status";
+
+                        }
 
 
                         row.innerHTML = `
@@ -1946,8 +2173,7 @@
 
                             <td>
                                 ${escapeHTML(
-                                    record.quantity ??
-                                    0
+                                    quantity
                                 )}
                             </td>
 
@@ -1967,9 +2193,15 @@
 
 
                             <td>
-                                ${escapeHTML(
-                                    status
-                                )}
+
+                                <span
+                                    class="status ${statusClass}"
+                                >
+                                    ${escapeHTML(
+                                        status
+                                    )}
+                                </span>
+
                             </td>
 
                         `;
@@ -2012,7 +2244,7 @@
 
 
         /* =====================================================
-           FEEDBACK
+           SUBMIT FEEDBACK
         ===================================================== */
 
         async function submitFeedback(
@@ -2026,14 +2258,17 @@
                 getLoggedInUser();
 
 
-            if (
-                !user.user_id &&
-                !user.email
-            ) {
+            /*
+             * Backend feedback.py specifically
+             * requires email.
+             */
+
+            if (!user.email) {
 
                 alert(
-                    "Please login again."
+                    "Your email was not found. Please login again."
                 );
+
 
                 return;
 
@@ -2046,6 +2281,18 @@
                 );
 
 
+            const statusElement =
+                document.getElementById(
+                    "feedbackStatus"
+                );
+
+
+            const submitButton =
+                document.getElementById(
+                    "feedbackSubmitButton"
+                );
+
+
             if (!messageElement) {
 
                 return;
@@ -2053,18 +2300,45 @@
             }
 
 
-            const message =
+            const description =
                 messageElement.value
                     .trim();
 
 
-            if (!message) {
+            if (!description) {
 
                 alert(
                     "Please enter your feedback."
                 );
 
+
                 return;
+
+            }
+
+
+            /*
+             * Prevent double submission.
+             */
+
+            if (submitButton) {
+
+                submitButton.disabled =
+                    true;
+
+                submitButton.textContent =
+                    "Submitting...";
+
+            }
+
+
+            if (statusElement) {
+
+                statusElement.textContent =
+                    "";
+
+                statusElement.className =
+                    "message";
 
             }
 
@@ -2072,9 +2346,16 @@
             try {
 
                 /*
-                 * Send both possible field names
-                 * to remain compatible with
-                 * your backend.
+                 * IMPORTANT:
+                 *
+                 * Your backend feedback.py
+                 * expects:
+                 *
+                 * email
+                 * description
+                 *
+                 * Therefore we send exactly
+                 * those fields.
                  */
 
                 const response =
@@ -2082,7 +2363,8 @@
                         `${API_URL}/api/feedback`,
                         {
 
-                            method: "POST",
+                            method:
+                                "POST",
 
                             headers: {
 
@@ -2094,21 +2376,11 @@
                             body:
                                 JSON.stringify({
 
-                                    user_id:
-                                        user.user_id
-                                        ? Number(
-                                            user.user_id
-                                        )
-                                        : null,
-
                                     email:
                                         user.email,
 
-                                    message:
-                                        message,
-
                                     description:
-                                        message
+                                        description
 
                                 })
 
@@ -2117,7 +2389,11 @@
 
 
                 const data =
-                    await response.json();
+                    await response
+                        .json()
+                        .catch(
+                            () => ({})
+                        );
 
 
                 console.log(
@@ -2131,6 +2407,19 @@
                     data.success
                 ) {
 
+                    if (statusElement) {
+
+                        statusElement.textContent =
+                            data.message ||
+                            "Feedback submitted successfully.";
+
+                        statusElement.classList.add(
+                            "success-message"
+                        );
+
+                    }
+
+
                     alert(
                         data.message ||
                         "Feedback submitted successfully."
@@ -2143,6 +2432,19 @@
                 }
 
                 else {
+
+                    if (statusElement) {
+
+                        statusElement.textContent =
+                            data.message ||
+                            "Feedback submission failed.";
+
+                        statusElement.classList.add(
+                            "error-message"
+                        );
+
+                    }
+
 
                     alert(
                         data.message ||
@@ -2160,9 +2462,37 @@
                 );
 
 
+                if (statusElement) {
+
+                    statusElement.textContent =
+                        "Unable to connect to Flask server.";
+
+                    statusElement.classList.add(
+                        "error-message"
+                    );
+
+                }
+
+
                 alert(
-                    "Unable to connect to Flask server."
+                    "Unable to connect to Flask server. " +
+                    "Please make sure Flask is running."
                 );
+
+            }
+
+
+            /*
+             * Enable button again.
+             */
+
+            if (submitButton) {
+
+                submitButton.disabled =
+                    false;
+
+                submitButton.textContent =
+                    "Submit Feedback";
 
             }
 
@@ -2265,41 +2595,6 @@
                 );
 
         }
-
-
-        /* =====================================================
-           FEEDBACK EVENT
-        ===================================================== */
-
-        document.addEventListener(
-            "DOMContentLoaded",
-            function() {
-
-                const feedbackForm =
-                    document.getElementById(
-                        "feedbackForm"
-                    );
-
-
-                if (feedbackForm) {
-
-                    feedbackForm.addEventListener(
-                        "submit",
-                        submitFeedback
-                    );
-
-                }
-
-
-                /*
-                 * Load devices when page opens.
-                 */
-
-                loadDevices();
-
-            }
-        );
-
 
     </script>
 
