@@ -1,0 +1,2308 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>ICT DEVICES MANAGEMENT</title>
+
+
+    <style>
+
+        /* =====================================================
+           RESET
+        ===================================================== */
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+
+        /* =====================================================
+           BODY
+        ===================================================== */
+
+        body {
+            background-color: #f4f6f8;
+            color: #333;
+            min-height: 100vh;
+        }
+
+
+        /* =====================================================
+           HEADER
+        ===================================================== */
+
+        header {
+            background-color: #173b63;
+            color: white;
+            height: 72px;
+
+            display: flex;
+            align-items: center;
+
+            padding: 0 25px;
+
+            box-shadow:
+                0 2px 8px rgba(0, 0, 0, 0.15);
+
+            position: sticky;
+            top: 0;
+            z-index: 900;
+        }
+
+
+        .menu-button {
+            width: 45px;
+            height: 45px;
+
+            background: transparent;
+            border: none;
+
+            color: white;
+
+            font-size: 30px;
+
+            cursor: pointer;
+
+            border-radius: 7px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+
+        .menu-button:hover {
+            background-color:
+                rgba(255, 255, 255, 0.15);
+        }
+
+
+        header h1 {
+            font-size: 24px;
+            letter-spacing: 1px;
+            margin-left: 15px;
+        }
+
+
+        /* =====================================================
+           SIDEBAR
+        ===================================================== */
+
+        .sidebar {
+            position: fixed;
+
+            top: 0;
+            left: -285px;
+
+            width: 285px;
+            height: 100vh;
+
+            background-color: white;
+
+            box-shadow:
+                5px 0 20px
+                rgba(0, 0, 0, 0.20);
+
+            z-index: 2000;
+
+            transition:
+                left 0.3s ease;
+
+            padding: 22px 18px;
+        }
+
+
+        .sidebar.open {
+            left: 0;
+        }
+
+
+        .sidebar-header {
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            padding-bottom: 20px;
+
+            margin-bottom: 18px;
+
+            border-bottom:
+                1px solid #ddd;
+        }
+
+
+        .sidebar-title {
+            color: #173b63;
+
+            font-size: 18px;
+
+            font-weight: bold;
+        }
+
+
+        .close-button {
+            background: transparent;
+            border: none;
+
+            font-size: 27px;
+
+            color: #555;
+
+            cursor: pointer;
+        }
+
+
+        .close-button:hover {
+            color: #173b63;
+        }
+
+
+        /* =====================================================
+           MENU ITEMS
+        ===================================================== */
+
+        .menu-item {
+            width: 100%;
+
+            background: transparent;
+
+            border: none;
+
+            padding: 14px 15px;
+
+            margin-bottom: 6px;
+
+            border-radius: 7px;
+
+            cursor: pointer;
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 12px;
+
+            text-align: left;
+
+            color: #333;
+
+            font-size: 15px;
+        }
+
+
+        .menu-item:hover {
+            background-color: #e9eef4;
+
+            color: #173b63;
+        }
+
+
+        .menu-item.active {
+            background-color: #173b63;
+
+            color: white;
+        }
+
+
+        /* =====================================================
+           LOGOUT
+        ===================================================== */
+
+        .logout-item {
+            color: #c62828;
+
+            margin-top: 25px;
+        }
+
+
+        .logout-item:hover {
+            background-color: #ffebee;
+
+            color: #c62828;
+        }
+
+
+        /* =====================================================
+           OVERLAY
+        ===================================================== */
+
+        .overlay {
+            position: fixed;
+
+            top: 0;
+            left: 0;
+
+            width: 100%;
+            height: 100%;
+
+            background-color:
+                rgba(0, 0, 0, 0.45);
+
+            z-index: 1500;
+
+            display: none;
+        }
+
+
+        .overlay.show {
+            display: block;
+        }
+
+
+        /* =====================================================
+           MAIN CONTAINER
+        ===================================================== */
+
+        .container {
+            width: 90%;
+
+            max-width: 1200px;
+
+            margin: 30px auto;
+        }
+
+
+        /* =====================================================
+           MODULE
+        ===================================================== */
+
+        .module {
+            display: none;
+        }
+
+
+        .module.active {
+            display: block;
+        }
+
+
+        /* =====================================================
+           HOME
+        ===================================================== */
+
+        .home {
+            min-height: 570px;
+
+            border-radius: 12px;
+
+            overflow: hidden;
+
+            position: relative;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            background-image:
+
+                linear-gradient(
+                    rgba(0, 0, 0, 0.60),
+                    rgba(0, 0, 0, 0.60)
+                ),
+
+                url(
+                    "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?auto=format&fit=crop&w=1600&q=80"
+                );
+
+            background-size: cover;
+
+            background-position: center;
+        }
+
+
+        .home-content {
+            color: white;
+
+            text-align: center;
+
+            max-width: 750px;
+
+            padding: 40px;
+        }
+
+
+        .home-content h2 {
+            font-size: 38px;
+
+            margin-bottom: 20px;
+        }
+
+
+        .home-content p {
+            font-size: 18px;
+
+            line-height: 1.8;
+        }
+
+
+        /* =====================================================
+           BOXES
+        ===================================================== */
+
+        .device-box,
+        .report-box,
+        .form-box {
+
+            background-color: white;
+
+            padding: 30px;
+
+            border-radius: 10px;
+
+            box-shadow:
+                0 2px 8px
+                rgba(0, 0, 0, 0.10);
+
+        }
+
+
+        .device-box {
+            overflow-x: auto;
+        }
+
+
+        .device-box h2,
+        .report-box h2 {
+
+            color: #173b63;
+
+            margin-bottom: 10px;
+        }
+
+
+        .device-description {
+            color: #666;
+
+            margin-bottom: 20px;
+        }
+
+
+        /* =====================================================
+           TABLE
+        ===================================================== */
+
+        table {
+            width: 100%;
+
+            border-collapse: collapse;
+        }
+
+
+        th {
+            background-color: #173b63;
+
+            color: white;
+
+            padding: 14px;
+
+            text-align: left;
+        }
+
+
+        td {
+            padding: 14px;
+
+            border-bottom:
+                1px solid #ddd;
+
+            vertical-align: middle;
+        }
+
+
+        tr:hover {
+            background-color: #f7f9fb;
+        }
+
+
+        /* =====================================================
+           QUANTITY INPUT
+        ===================================================== */
+
+        .quantity-input {
+            width: 100px;
+
+            padding: 9px;
+
+            border:
+                1px solid #bbb;
+
+            border-radius: 5px;
+
+            outline: none;
+        }
+
+
+        .quantity-input:focus {
+            border-color: #173b63;
+        }
+
+
+        /* =====================================================
+           BUTTON
+        ===================================================== */
+
+        .select-btn {
+            background-color: #173b63;
+
+            color: white;
+
+            border: none;
+
+            padding: 9px 18px;
+
+            border-radius: 5px;
+
+            cursor: pointer;
+        }
+
+
+        .select-btn:hover {
+            background-color: #0f2b48;
+        }
+
+
+        .select-btn:disabled {
+            background-color: #999;
+
+            cursor: not-allowed;
+        }
+
+
+        /* =====================================================
+           FEEDBACK FORM
+        ===================================================== */
+
+        .form-box {
+            max-width: 650px;
+
+            margin: auto;
+        }
+
+
+        .form-box h2 {
+            text-align: center;
+
+            color: #173b63;
+
+            margin-bottom: 10px;
+        }
+
+
+        .feedback-description {
+            text-align: center;
+
+            color: #666;
+
+            margin-bottom: 25px;
+
+            font-size: 14px;
+
+            line-height: 1.6;
+        }
+
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+
+        .form-group label {
+            display: block;
+
+            font-weight: bold;
+
+            margin-bottom: 7px;
+
+            color: #333;
+        }
+
+
+        .form-group textarea {
+            width: 100%;
+
+            padding: 12px;
+
+            border:
+                1px solid #ccc;
+
+            border-radius: 5px;
+
+            font-size: 15px;
+
+            height: 150px;
+
+            resize: vertical;
+
+            outline: none;
+        }
+
+
+        .form-group textarea:focus {
+            border-color: #173b63;
+        }
+
+
+        /* =====================================================
+           SUBMIT BUTTON
+        ===================================================== */
+
+        .submit-btn {
+            width: 100%;
+
+            padding: 13px;
+
+            background-color: #173b63;
+
+            color: white;
+
+            border: none;
+
+            border-radius: 5px;
+
+            cursor: pointer;
+
+            font-size: 16px;
+        }
+
+
+        .submit-btn:hover {
+            background-color: #0f2b48;
+        }
+
+
+        /* =====================================================
+           EMPTY STATE
+        ===================================================== */
+
+        .empty-state {
+            text-align: center;
+
+            color: #777;
+
+            padding: 30px;
+        }
+
+
+        /* =====================================================
+           FOOTER
+        ===================================================== */
+
+        footer {
+            background-color: #173b63;
+
+            color: white;
+
+            text-align: center;
+
+            padding: 15px;
+
+            margin-top: 40px;
+        }
+
+
+        /* =====================================================
+           MOBILE
+        ===================================================== */
+
+        @media(max-width: 700px) {
+
+            header {
+                padding: 0 15px;
+            }
+
+
+            header h1 {
+                font-size: 19px;
+            }
+
+
+            .container {
+                width: 94%;
+
+                margin: 20px auto;
+            }
+
+
+            .home {
+                min-height: 520px;
+            }
+
+
+            .home-content {
+                padding: 25px;
+            }
+
+
+            .home-content h2 {
+                font-size: 28px;
+            }
+
+
+            .home-content p {
+                font-size: 16px;
+
+                line-height: 1.7;
+            }
+
+
+            .sidebar {
+                width: 270px;
+            }
+
+
+            .device-box,
+            .report-box,
+            .form-box {
+                padding: 18px;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+    <!-- =====================================================
+         SIDEBAR
+    ===================================================== -->
+
+    <aside
+        class="sidebar"
+        id="sidebar"
+    >
+
+        <div class="sidebar-header">
+
+            <div class="sidebar-title">
+                💻 ICT MANAGEMENT
+            </div>
+
+
+            <button
+                class="close-button"
+                type="button"
+                onclick="closeMenu()"
+            >
+                ×
+            </button>
+
+        </div>
+
+
+        <!-- HOME -->
+
+        <button
+            class="menu-item active"
+            type="button"
+            onclick="openModule('home', this)"
+        >
+
+            🏠
+
+            <span>
+                Home
+            </span>
+
+        </button>
+
+
+        <!-- MY DEVICES -->
+
+        <button
+            class="menu-item"
+            type="button"
+            onclick="openModule('devices', this)"
+        >
+
+            💻
+
+            <span>
+                My Devices
+            </span>
+
+        </button>
+
+
+        <!-- MY REPORT -->
+
+        <button
+            class="menu-item"
+            type="button"
+            onclick="openModule('report', this)"
+        >
+
+            📋
+
+            <span>
+                My Report
+            </span>
+
+        </button>
+
+
+        <!-- FEEDBACK -->
+
+        <button
+            class="menu-item"
+            type="button"
+            onclick="openModule('feedback', this)"
+        >
+
+            💬
+
+            <span>
+                Feedback
+            </span>
+
+        </button>
+
+
+        <!-- LOGOUT -->
+
+        <button
+            class="menu-item logout-item"
+            type="button"
+            onclick="logout()"
+        >
+
+            🚪
+
+            <span>
+                Logout
+            </span>
+
+        </button>
+
+    </aside>
+
+
+    <!-- =====================================================
+         OVERLAY
+    ===================================================== -->
+
+    <div
+        class="overlay"
+        id="overlay"
+        onclick="closeMenu()"
+    ></div>
+
+
+    <!-- =====================================================
+         HEADER
+    ===================================================== -->
+
+    <header>
+
+        <button
+            class="menu-button"
+            type="button"
+            onclick="openMenu()"
+            title="Open Menu"
+        >
+            ☰
+        </button>
+
+
+        <h1>
+            ICT DEVICES MANAGEMENT
+        </h1>
+
+    </header>
+
+
+    <!-- =====================================================
+         MAIN
+    ===================================================== -->
+
+    <main class="container">
+
+
+        <!-- =================================================
+             HOME MODULE
+        ================================================= -->
+
+        <section
+            id="home"
+            class="module active"
+        >
+
+            <div class="home">
+
+                <div class="home-content">
+
+                    <h2>
+                        Welcome to ICT Devices Management
+                    </h2>
+
+
+                    <p>
+
+                        ICT Devices Management System
+                        is designed to simplify the
+                        management and borrowing of ICT
+                        devices within an organization
+                        or institution.
+
+                        <br><br>
+
+                        Users can view available ICT
+                        devices, request the required
+                        quantity, monitor their borrowing
+                        records and submit feedback
+                        through the system.
+
+                    </p>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             MY DEVICES MODULE
+        ================================================= -->
+
+        <section
+            id="devices"
+            class="module"
+        >
+
+            <div class="device-box">
+
+                <h2>
+                    My Devices
+                </h2>
+
+
+                <p class="device-description">
+
+                    Devices available for borrowing
+                    will be added and managed by the
+                    administrator.
+
+                </p>
+
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                Device
+                            </th>
+
+                            <th>
+                                Available
+                            </th>
+
+                            <th>
+                                Quantity
+                            </th>
+
+                            <th>
+                                Action
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody
+                        id="deviceTableBody"
+                    >
+
+                        <tr>
+
+                            <td
+                                colspan="4"
+                                class="empty-state"
+                            >
+                                Loading devices...
+                            </td>
+
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             MY REPORT MODULE
+        ================================================= -->
+
+        <section
+            id="report"
+            class="module"
+        >
+
+            <div class="report-box">
+
+                <h2>
+                    My Report
+                </h2>
+
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                Device ID
+                            </th>
+
+                            <th>
+                                Device Name
+                            </th>
+
+                            <th>
+                                Quantity
+                            </th>
+
+                            <th>
+                                Date
+                            </th>
+
+                            <th>
+                                Time
+                            </th>
+
+                            <th>
+                                Status
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody
+                        id="reportTableBody"
+                    >
+
+                        <tr>
+
+                            <td
+                                colspan="6"
+                                class="empty-state"
+                            >
+                                No borrowing records found.
+                            </td>
+
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             FEEDBACK MODULE
+        ================================================= -->
+
+        <section
+            id="feedback"
+            class="module"
+        >
+
+            <div class="form-box">
+
+                <h2>
+                    Feedback
+                </h2>
+
+
+                <p class="feedback-description">
+
+                    Share your feedback about ICT
+                    devices, availability, shortage,
+                    or any problem you experienced.
+
+                </p>
+
+
+                <form
+                    id="feedbackForm"
+                >
+
+                    <div class="form-group">
+
+                        <label
+                            for="feedbackMessage"
+                        >
+                            Feedback / Description
+                        </label>
+
+
+                        <textarea
+                            id="feedbackMessage"
+                            placeholder="Example: Computers are not enough, some devices are not working, or a certain device is finished..."
+                            required
+                        ></textarea>
+
+                    </div>
+
+
+                    <button
+                        type="submit"
+                        class="submit-btn"
+                    >
+
+                        Submit Feedback
+
+                    </button>
+
+                </form>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- =====================================================
+         FOOTER
+    ===================================================== -->
+
+    <footer>
+
+        <p>
+            &copy; 2026 ICT Devices Management System
+        </p>
+
+    </footer>
+
+
+    <!-- =====================================================
+         JAVASCRIPT
+         ONLY ONE SCRIPT
+    ===================================================== -->
+
+    <script>
+
+        /* =====================================================
+           API CONFIGURATION
+        ===================================================== */
+
+        const API_URL =
+            "http://127.0.0.1:5000";
+
+
+        /* =====================================================
+           MENU
+        ===================================================== */
+
+        function openMenu() {
+
+            const sidebar =
+                document.getElementById("sidebar");
+
+            const overlay =
+                document.getElementById("overlay");
+
+
+            if (sidebar) {
+
+                sidebar.classList.add("open");
+
+            }
+
+
+            if (overlay) {
+
+                overlay.classList.add("show");
+
+            }
+
+        }
+
+
+        function closeMenu() {
+
+            const sidebar =
+                document.getElementById("sidebar");
+
+            const overlay =
+                document.getElementById("overlay");
+
+
+            if (sidebar) {
+
+                sidebar.classList.remove("open");
+
+            }
+
+
+            if (overlay) {
+
+                overlay.classList.remove("show");
+
+            }
+
+        }
+
+
+        /* =====================================================
+           OPEN MODULE
+        ===================================================== */
+
+        function openModule(
+            moduleID,
+            clickedButton
+        ) {
+
+            const modules =
+                document.querySelectorAll(".module");
+
+
+            modules.forEach(
+                function(module) {
+
+                    module.classList.remove(
+                        "active"
+                    );
+
+                }
+            );
+
+
+            const menuItems =
+                document.querySelectorAll(
+                    ".menu-item"
+                );
+
+
+            menuItems.forEach(
+                function(item) {
+
+                    item.classList.remove(
+                        "active"
+                    );
+
+                }
+            );
+
+
+            const selectedModule =
+                document.getElementById(
+                    moduleID
+                );
+
+
+            if (selectedModule) {
+
+                selectedModule.classList.add(
+                    "active"
+                );
+
+            }
+
+
+            if (clickedButton) {
+
+                clickedButton.classList.add(
+                    "active"
+                );
+
+            }
+
+
+            closeMenu();
+
+
+            /* Load devices */
+
+            if (
+                moduleID === "devices"
+            ) {
+
+                loadDevices();
+
+            }
+
+
+            /* Load report */
+
+            if (
+                moduleID === "report"
+            ) {
+
+                loadMyReport();
+
+            }
+
+        }
+
+
+        /* =====================================================
+           GET LOGGED-IN USER
+        ===================================================== */
+
+        function getLoggedInUser() {
+
+            const userId =
+                localStorage.getItem(
+                    "user_id"
+                );
+
+
+            const fullName =
+                localStorage.getItem(
+                    "user_full_name"
+                );
+
+
+            const email =
+                localStorage.getItem(
+                    "user_email"
+                );
+
+
+            return {
+
+                user_id: userId,
+
+                full_name: fullName,
+
+                email: email
+
+            };
+
+        }
+
+
+        /* =====================================================
+           LOAD DEVICES
+        ===================================================== */
+
+        async function loadDevices() {
+
+            const tableBody =
+                document.getElementById(
+                    "deviceTableBody"
+                );
+
+
+            if (!tableBody) {
+
+                return;
+
+            }
+
+
+            tableBody.innerHTML = `
+
+                <tr>
+
+                    <td
+                        colspan="4"
+                        class="empty-state"
+                    >
+                        Loading devices...
+                    </td>
+
+                </tr>
+
+            `;
+
+
+            try {
+
+                /*
+                 * IMPORTANT:
+                 *
+                 * User frontend uses:
+                 *
+                 * GET /api/devices
+                 *
+                 * NOT /api/admin/devices
+                 */
+
+                const response =
+                    await fetch(
+                        `${API_URL}/api/devices`
+                    );
+
+
+                const data =
+                    await response.json();
+
+
+                console.log(
+                    "Devices received:",
+                    data
+                );
+
+
+                if (
+                    !response.ok ||
+                    !data.success
+                ) {
+
+                    tableBody.innerHTML = `
+
+                        <tr>
+
+                            <td
+                                colspan="4"
+                                class="empty-state"
+                            >
+                                Failed to load devices.
+                            </td>
+
+                        </tr>
+
+                    `;
+
+                    return;
+
+                }
+
+
+                const devices =
+                    data.devices || [];
+
+
+                if (
+                    devices.length === 0
+                ) {
+
+                    tableBody.innerHTML = `
+
+                        <tr>
+
+                            <td
+                                colspan="4"
+                                class="empty-state"
+                            >
+                                No devices are currently available.
+                            </td>
+
+                        </tr>
+
+                    `;
+
+                    return;
+
+                }
+
+
+                tableBody.innerHTML = "";
+
+
+                devices.forEach(
+                    function(device) {
+
+                        const row =
+                            document.createElement(
+                                "tr"
+                            );
+
+
+                        const deviceId =
+                            Number(
+                                device.device_id ??
+                                device.id ??
+                                0
+                            );
+
+
+                        const available =
+                            Number(
+                                device.available_quantity ??
+                                0
+                            );
+
+
+                        row.innerHTML = `
+
+                            <td>
+                                ${escapeHTML(
+                                    device.device_name ||
+                                    ""
+                                )}
+                            </td>
+
+
+                            <td>
+                                ${available}
+                            </td>
+
+
+                            <td>
+
+                                <input
+                                    type="number"
+                                    class="quantity-input"
+                                    id="quantity-${deviceId}"
+                                    min="1"
+                                    max="${available}"
+                                    value="1"
+                                    ${
+                                        available <= 0
+                                        ? "disabled"
+                                        : ""
+                                    }
+                                >
+
+                            </td>
+
+
+                            <td>
+
+                                <button
+                                    type="button"
+                                    class="select-btn"
+                                    onclick="requestDevice(${deviceId})"
+                                    ${
+                                        available <= 0
+                                        ? "disabled"
+                                        : ""
+                                    }
+                                >
+
+                                    ${
+                                        available <= 0
+                                        ? "Not Available"
+                                        : "Request"
+                                    }
+
+                                </button>
+
+                            </td>
+
+                        `;
+
+
+                        tableBody.appendChild(
+                            row
+                        );
+
+                    }
+                );
+
+
+            } catch (error) {
+
+                console.error(
+                    "Load devices error:",
+                    error
+                );
+
+
+                tableBody.innerHTML = `
+
+                    <tr>
+
+                        <td
+                            colspan="4"
+                            class="empty-state"
+                        >
+                            Unable to connect to Flask server.
+                        </td>
+
+                    </tr>
+
+                `;
+
+            }
+
+        }
+
+
+        /* =====================================================
+           REQUEST / BORROW DEVICE
+        ===================================================== */
+
+        async function requestDevice(
+            deviceId
+        ) {
+
+            const user =
+                getLoggedInUser();
+
+
+            if (
+                !user.user_id &&
+                !user.email
+            ) {
+
+                alert(
+                    "Your login session was not found. Please login again."
+                );
+
+
+                window.location.href =
+                    "home.html";
+
+
+                return;
+
+            }
+
+
+            const quantityInput =
+                document.getElementById(
+                    `quantity-${deviceId}`
+                );
+
+
+            if (!quantityInput) {
+
+                alert(
+                    "Quantity field not found."
+                );
+
+                return;
+
+            }
+
+
+            const quantity =
+                Number(
+                    quantityInput.value
+                );
+
+
+            if (
+                !quantity ||
+                quantity < 1
+            ) {
+
+                alert(
+                    "Please enter a valid quantity."
+                );
+
+                return;
+
+            }
+
+
+            try {
+
+                const response =
+                    await fetch(
+                        `${API_URL}/api/borrowing/borrow`,
+                        {
+
+                            method: "POST",
+
+                            headers: {
+
+                                "Content-Type":
+                                    "application/json"
+
+                            },
+
+                            body:
+                                JSON.stringify({
+
+                                    /*
+                                     * Send both.
+                                     *
+                                     * Your backend can use
+                                     * whichever one it expects.
+                                     */
+
+                                    user_id:
+                                        user.user_id
+                                        ? Number(
+                                            user.user_id
+                                        )
+                                        : null,
+
+                                    email:
+                                        user.email,
+
+                                    device_id:
+                                        Number(
+                                            deviceId
+                                        ),
+
+                                    quantity:
+                                        quantity
+
+                                })
+
+                        }
+                    );
+
+
+                const data =
+                    await response.json();
+
+
+                console.log(
+                    "Borrow response:",
+                    data
+                );
+
+
+                if (
+                    response.ok &&
+                    data.success
+                ) {
+
+                    alert(
+                        data.message ||
+                        "Device request submitted successfully."
+                    );
+
+
+                    await loadDevices();
+
+
+                    await loadMyReport();
+
+                }
+
+                else {
+
+                    alert(
+                        data.message ||
+                        "Device request failed."
+                    );
+
+                }
+
+
+            } catch (error) {
+
+                console.error(
+                    "Request device error:",
+                    error
+                );
+
+
+                alert(
+                    "Unable to connect to Flask server. Please make sure Flask is running."
+                );
+
+            }
+
+        }
+
+
+        /* =====================================================
+           LOAD MY REPORT
+        ===================================================== */
+
+        async function loadMyReport() {
+
+            const tableBody =
+                document.getElementById(
+                    "reportTableBody"
+                );
+
+
+            if (!tableBody) {
+
+                return;
+
+            }
+
+
+            const user =
+                getLoggedInUser();
+
+
+            if (
+                !user.email &&
+                !user.user_id
+            ) {
+
+                tableBody.innerHTML = `
+
+                    <tr>
+
+                        <td
+                            colspan="6"
+                            class="empty-state"
+                        >
+                            Please login again.
+                        </td>
+
+                    </tr>
+
+                `;
+
+                return;
+
+            }
+
+
+            tableBody.innerHTML = `
+
+                <tr>
+
+                    <td
+                        colspan="6"
+                        class="empty-state"
+                    >
+                        Loading report...
+                    </td>
+
+                </tr>
+
+            `;
+
+
+            try {
+
+                let response;
+
+
+                /*
+                 * First try the email-based endpoint.
+                 *
+                 * This matches the newer backend
+                 * structure you showed earlier.
+                 */
+
+                if (user.email) {
+
+                    response =
+                        await fetch(
+                            `${API_URL}/api/borrowing/user?email=${encodeURIComponent(
+                                user.email
+                            )}`
+                        );
+
+                }
+
+                else {
+
+                    response =
+                        await fetch(
+                            `${API_URL}/api/borrowing/user/${encodeURIComponent(
+                                user.user_id
+                            )}`
+                        );
+
+                }
+
+
+                const data =
+                    await response.json();
+
+
+                console.log(
+                    "User report:",
+                    data
+                );
+
+
+                if (
+                    !response.ok ||
+                    !data.success
+                ) {
+
+                    tableBody.innerHTML = `
+
+                        <tr>
+
+                            <td
+                                colspan="6"
+                                class="empty-state"
+                            >
+                                Failed to load your report.
+                            </td>
+
+                        </tr>
+
+                    `;
+
+                    return;
+
+                }
+
+
+                const borrowings =
+                    data.borrowings || [];
+
+
+                if (
+                    borrowings.length === 0
+                ) {
+
+                    tableBody.innerHTML = `
+
+                        <tr>
+
+                            <td
+                                colspan="6"
+                                class="empty-state"
+                            >
+                                No borrowing records found.
+                            </td>
+
+                        </tr>
+
+                    `;
+
+                    return;
+
+                }
+
+
+                tableBody.innerHTML = "";
+
+
+                borrowings.forEach(
+                    function(record) {
+
+                        const row =
+                            document.createElement(
+                                "tr"
+                            );
+
+
+                        /*
+                         * Support different
+                         * field names from backend.
+                         */
+
+                        const deviceId =
+                            record.device_code ??
+                            record.device_id ??
+                            record.id ??
+                            "";
+
+
+                        const deviceName =
+                            record.device_name ??
+                            record.device ??
+                            "";
+
+
+                        const date =
+                            record.borrow_date ??
+                            record.date ??
+                            record.borrowed_date ??
+                            "";
+
+
+                        const time =
+                            record.borrow_time ??
+                            record.time ??
+                            "";
+
+
+                        const status =
+                            record.status ??
+                            "Borrowed";
+
+
+                        row.innerHTML = `
+
+                            <td>
+                                ${escapeHTML(
+                                    deviceId
+                                )}
+                            </td>
+
+
+                            <td>
+                                ${escapeHTML(
+                                    deviceName
+                                )}
+                            </td>
+
+
+                            <td>
+                                ${escapeHTML(
+                                    record.quantity ??
+                                    0
+                                )}
+                            </td>
+
+
+                            <td>
+                                ${escapeHTML(
+                                    date
+                                )}
+                            </td>
+
+
+                            <td>
+                                ${escapeHTML(
+                                    time
+                                )}
+                            </td>
+
+
+                            <td>
+                                ${escapeHTML(
+                                    status
+                                )}
+                            </td>
+
+                        `;
+
+
+                        tableBody.appendChild(
+                            row
+                        );
+
+                    }
+                );
+
+
+            } catch (error) {
+
+                console.error(
+                    "Load report error:",
+                    error
+                );
+
+
+                tableBody.innerHTML = `
+
+                    <tr>
+
+                        <td
+                            colspan="6"
+                            class="empty-state"
+                        >
+                            Unable to connect to Flask server.
+                        </td>
+
+                    </tr>
+
+                `;
+
+            }
+
+        }
+
+
+        /* =====================================================
+           FEEDBACK
+        ===================================================== */
+
+        async function submitFeedback(
+            event
+        ) {
+
+            event.preventDefault();
+
+
+            const user =
+                getLoggedInUser();
+
+
+            if (
+                !user.user_id &&
+                !user.email
+            ) {
+
+                alert(
+                    "Please login again."
+                );
+
+                return;
+
+            }
+
+
+            const messageElement =
+                document.getElementById(
+                    "feedbackMessage"
+                );
+
+
+            if (!messageElement) {
+
+                return;
+
+            }
+
+
+            const message =
+                messageElement.value
+                    .trim();
+
+
+            if (!message) {
+
+                alert(
+                    "Please enter your feedback."
+                );
+
+                return;
+
+            }
+
+
+            try {
+
+                /*
+                 * Send both possible field names
+                 * to remain compatible with
+                 * your backend.
+                 */
+
+                const response =
+                    await fetch(
+                        `${API_URL}/api/feedback`,
+                        {
+
+                            method: "POST",
+
+                            headers: {
+
+                                "Content-Type":
+                                    "application/json"
+
+                            },
+
+                            body:
+                                JSON.stringify({
+
+                                    user_id:
+                                        user.user_id
+                                        ? Number(
+                                            user.user_id
+                                        )
+                                        : null,
+
+                                    email:
+                                        user.email,
+
+                                    message:
+                                        message,
+
+                                    description:
+                                        message
+
+                                })
+
+                        }
+                    );
+
+
+                const data =
+                    await response.json();
+
+
+                console.log(
+                    "Feedback response:",
+                    data
+                );
+
+
+                if (
+                    response.ok &&
+                    data.success
+                ) {
+
+                    alert(
+                        data.message ||
+                        "Feedback submitted successfully."
+                    );
+
+
+                    messageElement.value =
+                        "";
+
+                }
+
+                else {
+
+                    alert(
+                        data.message ||
+                        "Feedback submission failed."
+                    );
+
+                }
+
+
+            } catch (error) {
+
+                console.error(
+                    "Feedback error:",
+                    error
+                );
+
+
+                alert(
+                    "Unable to connect to Flask server."
+                );
+
+            }
+
+        }
+
+
+        /* =====================================================
+           LOGOUT
+        ===================================================== */
+
+        function logout() {
+
+            const confirmation =
+                confirm(
+                    "Are you sure you want to logout?"
+                );
+
+
+            if (!confirmation) {
+
+                return;
+
+            }
+
+
+            localStorage.removeItem(
+                "loggedInUser"
+            );
+
+
+            localStorage.removeItem(
+                "user_id"
+            );
+
+
+            localStorage.removeItem(
+                "user_full_name"
+            );
+
+
+            localStorage.removeItem(
+                "user_email"
+            );
+
+
+            localStorage.removeItem(
+                "user"
+            );
+
+
+            window.location.href =
+                "home.html";
+
+        }
+
+
+        /* =====================================================
+           ESCAPE HTML
+        ===================================================== */
+
+        function escapeHTML(
+            value
+        ) {
+
+            if (
+                value === null ||
+                value === undefined
+            ) {
+
+                return "";
+
+            }
+
+
+            return String(value)
+
+                .replace(
+                    /&/g,
+                    "&amp;"
+                )
+
+                .replace(
+                    /</g,
+                    "&lt;"
+                )
+
+                .replace(
+                    />/g,
+                    "&gt;"
+                )
+
+                .replace(
+                    /"/g,
+                    "&quot;"
+                )
+
+                .replace(
+                    /'/g,
+                    "&#039;"
+                );
+
+        }
+
+
+        /* =====================================================
+           FEEDBACK EVENT
+        ===================================================== */
+
+        document.addEventListener(
+            "DOMContentLoaded",
+            function() {
+
+                const feedbackForm =
+                    document.getElementById(
+                        "feedbackForm"
+                    );
+
+
+                if (feedbackForm) {
+
+                    feedbackForm.addEventListener(
+                        "submit",
+                        submitFeedback
+                    );
+
+                }
+
+
+                /*
+                 * Load devices when page opens.
+                 */
+
+                loadDevices();
+
+            }
+        );
+
+
+    </script>
+
+</body>
+
+</html>

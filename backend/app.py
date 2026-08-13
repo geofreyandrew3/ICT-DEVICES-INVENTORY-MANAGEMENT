@@ -1,5 +1,7 @@
 from flask import Flask, jsonify
 
+from flask_cors import CORS
+
 from database import initialize_database
 
 
@@ -17,12 +19,21 @@ from routes.reports import reports_bp
 
 from routes.feedback import feedback_bp
 
+from routes.admin import admin_bp
+
 
 # ==========================================
 # CREATE FLASK APP
 # ==========================================
 
 app = Flask(__name__)
+
+
+# ==========================================
+# ENABLE CORS
+# ==========================================
+
+CORS(app)
 
 
 # ==========================================
@@ -49,6 +60,10 @@ app.register_blueprint(
     feedback_bp
 )
 
+app.register_blueprint(
+    admin_bp
+)
+
 
 # ==========================================
 # HOME / API STATUS
@@ -58,6 +73,8 @@ app.register_blueprint(
 def home():
 
     return jsonify({
+
+        "success": True,
 
         "system":
             "ICT DEVICES MANAGEMENT",
@@ -72,7 +89,7 @@ def home():
 
 
 # ==========================================
-# INITIALIZE DATABASE
+# DATABASE INITIALIZATION
 # ==========================================
 
 initialize_database()

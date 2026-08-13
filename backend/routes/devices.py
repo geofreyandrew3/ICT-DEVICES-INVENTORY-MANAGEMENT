@@ -35,7 +35,7 @@ def devices():
 
             "devices": device_list
 
-        })
+        }), 200
 
 
     except Exception as error:
@@ -84,7 +84,7 @@ def device(device_id):
 
             "device": result
 
-        })
+        }), 200
 
 
     except Exception as error:
@@ -108,18 +108,22 @@ def device(device_id):
 )
 def add():
 
-    data = request.get_json() or {}
+    data = request.get_json(silent=True) or {}
 
 
-    device_code = data.get(
-        "device_code",
-        ""
+    device_code = str(
+        data.get(
+            "device_code",
+            ""
+        )
     ).strip()
 
 
-    device_name = data.get(
-        "device_name",
-        ""
+    device_name = str(
+        data.get(
+            "device_name",
+            ""
+        )
     ).strip()
 
 
@@ -127,6 +131,10 @@ def add():
         "quantity"
     )
 
+
+    # ======================================
+    # VALIDATION
+    # ======================================
 
     if not device_code:
 
@@ -152,11 +160,23 @@ def add():
         }), 400
 
 
+    if quantity is None:
+
+        return jsonify({
+
+            "success": False,
+
+            "message":
+                "Quantity is required."
+
+        }), 400
+
+
     try:
 
         quantity = int(quantity)
 
-    except:
+    except (ValueError, TypeError):
 
         return jsonify({
 
@@ -180,12 +200,20 @@ def add():
         }), 400
 
 
+    # ======================================
+    # ADD DEVICE
+    # ======================================
+
     try:
 
         device_id = add_device(
+
             device_code,
+
             device_name,
+
             quantity
+
         )
 
 
@@ -204,10 +232,26 @@ def add():
 
     except Exception as error:
 
+        error_message = str(error)
+
+
+        if "Duplicate entry" in error_message:
+
+            return jsonify({
+
+                "success": False,
+
+                "message":
+                    "Device code already exists."
+
+            }), 409
+
+
         return jsonify({
 
             "success": False,
 
-            "message": str(error)
+            "message":
+                error_message
 
         }), 500

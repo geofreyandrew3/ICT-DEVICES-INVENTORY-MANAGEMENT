@@ -26,9 +26,11 @@ reports_bp = Blueprint(
 )
 def reports():
 
-    email = request.args.get(
-        "email",
-        ""
+    email = str(
+        request.args.get(
+            "email",
+            ""
+        )
     ).strip().lower()
 
 
@@ -44,33 +46,47 @@ def reports():
         }), 400
 
 
-    user = get_user_by_email(
-        email
-    )
+    try:
+
+        user = get_user_by_email(
+            email
+        )
 
 
-    if not user:
+        if not user:
+
+            return jsonify({
+
+                "success": False,
+
+                "message":
+                    "User not found."
+
+            }), 404
+
+
+        borrowing_records = \
+            get_user_borrowings(
+                user["user_id"]
+            )
+
+
+        return jsonify({
+
+            "success": True,
+
+            "reports":
+                borrowing_records
+
+        }), 200
+
+
+    except Exception as error:
 
         return jsonify({
 
             "success": False,
 
-            "message":
-                "User not found."
+            "message": str(error)
 
-        }), 404
-
-
-    borrowing_records = \
-        get_user_borrowings(
-            user["user_id"]
-        )
-
-
-    return jsonify({
-
-        "success": True,
-
-        "reports": borrowing_records
-
-    })
+        }), 500

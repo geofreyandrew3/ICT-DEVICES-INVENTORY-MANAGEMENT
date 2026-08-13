@@ -29,6 +29,7 @@ def create_feedback(
 
             VALUES
             (%s, %s, %s, %s)
+
         """, (
             user_id,
             full_name,
@@ -39,12 +40,13 @@ def create_feedback(
 
         connection.commit()
 
-
         return cursor.lastrowid
+
 
     finally:
 
         cursor.close()
+
         connection.close()
 
 
@@ -81,11 +83,62 @@ def get_all_feedback():
 
             ORDER BY
                 feedback_id DESC
+
         """)
 
+
         return cursor.fetchall()
+
 
     finally:
 
         cursor.close()
+
+        connection.close()
+
+
+# ==========================================
+# GET USER FEEDBACK
+# ==========================================
+
+def get_user_feedback(user_id):
+
+    connection = get_db_connection()
+
+    cursor = connection.cursor(
+        dictionary=True
+    )
+
+    try:
+
+        cursor.execute("""
+            SELECT
+
+                feedback_id,
+
+                full_name,
+
+                email,
+
+                description,
+
+                submitted_at
+
+            FROM feedback
+
+            WHERE user_id = %s
+
+            ORDER BY
+                feedback_id DESC
+
+        """, (user_id,))
+
+
+        return cursor.fetchall()
+
+
+    finally:
+
+        cursor.close()
+
         connection.close()

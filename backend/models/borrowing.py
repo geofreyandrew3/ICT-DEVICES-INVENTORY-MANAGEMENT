@@ -21,22 +21,40 @@ def borrow_device(
 
     try:
 
-        # ----------------------------------
-        # START TRANSACTION
-        # ----------------------------------
-
         connection.start_transaction()
 
 
-        # ----------------------------------
+        # ==================================
+        # VALIDATE QUANTITY
+        # ==================================
+
+        if quantity <= 0:
+
+            connection.rollback()
+
+            return {
+
+                "success": False,
+
+                "message":
+                    "Quantity must be greater than zero."
+
+            }
+
+
+        # ==================================
         # GET DEVICE
-        # ----------------------------------
+        # ==================================
 
         cursor.execute("""
             SELECT
+
                 device_id,
+
                 device_code,
+
                 device_name,
+
                 available_quantity
 
             FROM devices
@@ -44,6 +62,7 @@ def borrow_device(
             WHERE device_id = %s
 
             FOR UPDATE
+
         """, (device_id,))
 
 
@@ -55,41 +74,39 @@ def borrow_device(
             connection.rollback()
 
             return {
+
                 "success": False,
-                "message": "Device not found."
-            }
 
-
-        # ----------------------------------
-        # CHECK QUANTITY
-        # ----------------------------------
-
-        if quantity <= 0:
-
-            connection.rollback()
-
-            return {
-                "success": False,
                 "message":
-                    "Quantity must be greater than zero."
+                    "Device not found."
+
             }
 
+
+        # ==================================
+        # CHECK AVAILABILITY
+        # ==================================
 
         if quantity > device["available_quantity"]:
 
             connection.rollback()
 
             return {
+
                 "success": False,
+
                 "message":
-                    f"Only {device['available_quantity']} "
-                    f"{device['device_name']}(s) available."
+                    f"Only "
+                    f"{device['available_quantity']} "
+                    f"{device['device_name']}(s) "
+                    f"available."
+
             }
 
 
-        # ----------------------------------
+        # ==================================
         # CURRENT DATE AND TIME
-        # ----------------------------------
+        # ==================================
 
         now = datetime.now()
 
@@ -98,9 +115,9 @@ def borrow_device(
         borrow_time = now.time()
 
 
-        # ----------------------------------
+        # ==================================
         # INSERT BORROWING
-        # ----------------------------------
+        # ==================================
 
         cursor.execute("""
             INSERT INTO borrowing
@@ -115,6 +132,7 @@ def borrow_device(
 
             VALUES
             (%s, %s, %s, %s, %s, %s)
+
         """, (
             user_id,
             device_id,
@@ -125,9 +143,9 @@ def borrow_device(
         ))
 
 
-        # ----------------------------------
+        # ==================================
         # REDUCE AVAILABLE QUANTITY
-        # ----------------------------------
+        # ==================================
 
         cursor.execute("""
             UPDATE devices
@@ -136,28 +154,30 @@ def borrow_device(
                 available_quantity - %s
 
             WHERE device_id = %s
+
         """, (
             quantity,
             device_id
         ))
 
 
-        # ----------------------------------
-        # COMMIT
-        # ----------------------------------
-
         connection.commit()
 
 
         return {
+
             "success": True,
+
             "message":
                 f"{device['device_name']} "
                 f"successfully borrowed.",
+
             "device_name":
                 device["device_name"],
+
             "quantity":
                 quantity
+
         }
 
 
@@ -166,14 +186,18 @@ def borrow_device(
         connection.rollback()
 
         return {
+
             "success": False,
+
             "message": str(error)
+
         }
 
 
     finally:
 
         cursor.close()
+
         connection.close()
 
 
@@ -219,12 +243,78 @@ def get_user_borrowings(user_id):
 
             ORDER BY
                 borrowing.borrowing_id DESC
+
         """, (user_id,))
 
 
         return cursor.fetchall()
 
+
     finally:
 
         cursor.close()
+
+        connection.close()
+
+
+# ==========================================
+# GET ALL BORROWINGS - ADMIN
+# ==========================================
+
+def get_all_borrowings():
+
+    connection = get_db_connection()
+
+    cursor = connection.cursor(
+        dictionary=True
+    )
+
+    try:
+
+        cursor.execute("""
+            SELECT
+
+                borrowing.borrowing_id,
+
+                users.full_name,
+
+                users.email,
+
+                devices.device_code,
+
+                devices.device_name,
+
+                borrowing.quantity,
+
+                borrowing.borrow_date,
+
+                borrowing.borrow_time,
+
+                borrowing.status
+
+            FROM borrowing
+
+            INNER JOIN users
+
+                ON borrowing.user_id =
+                   users.user_id
+
+            INNER JOIN devices
+
+                ON borrowing.device_id =
+                   devices.device_id
+
+            ORDER BY
+                borrowing.borrowing_id DESC
+
+        """)
+
+
+        return cursor.fetchall()
+
+
+    finally:
+
+        cursor.close()
+
         connection.close()

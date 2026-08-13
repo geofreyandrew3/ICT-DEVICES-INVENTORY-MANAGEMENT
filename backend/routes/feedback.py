@@ -6,7 +6,8 @@ from models.user import (
 
 from models.feedback import (
     create_feedback,
-    get_all_feedback
+    get_all_feedback,
+    get_user_feedback
 )
 
 
@@ -17,9 +18,9 @@ feedback_bp = Blueprint(
 )
 
 
-# ==========================================
+# =====================================================
 # SUBMIT FEEDBACK
-# ==========================================
+# =====================================================
 
 @feedback_bp.route(
     "",
@@ -27,42 +28,30 @@ feedback_bp = Blueprint(
 )
 def submit_feedback():
 
-    data = request.get_json() or {}
+    data = request.get_json(
+        silent=True
+    ) or {}
 
 
-    full_name = data.get(
-        "full_name",
-        ""
-    ).strip()
-
-
-    email = data.get(
-        "email",
-        ""
+    email = str(
+        data.get(
+            "email",
+            ""
+        )
     ).strip().lower()
 
 
-    description = data.get(
-        "description",
-        ""
+    description = str(
+        data.get(
+            "description",
+            ""
+        )
     ).strip()
 
 
-    # --------------------------------------
+    # =================================================
     # VALIDATION
-    # --------------------------------------
-
-    if not full_name:
-
-        return jsonify({
-
-            "success": False,
-
-            "message":
-                "Full name is required."
-
-        }), 400
-
+    # =================================================
 
     if not email:
 
@@ -88,27 +77,43 @@ def submit_feedback():
         }), 400
 
 
-    # --------------------------------------
-    # FIND USER
-    # --------------------------------------
+    try:
 
-    user = get_user_by_email(
-        email
-    )
+        # =============================================
+        # FIND USER
+        # =============================================
+
+        user = get_user_by_email(
+            email
+        )
 
 
-    user_id = None
+        if not user:
 
-    if user:
+            return jsonify({
+
+                "success": False,
+
+                "message":
+                    "User account not found."
+
+            }), 404
+
+
+        # =============================================
+        # GET USER INFORMATION FROM DATABASE
+        # =============================================
 
         user_id = user["user_id"]
 
+        full_name = user["full_name"]
 
-    # --------------------------------------
-    # SAVE FEEDBACK
-    # --------------------------------------
+        user_email = user["email"]
 
-    try:
+
+        # =============================================
+        # SAVE FEEDBACK
+        # =============================================
 
         feedback_id = create_feedback(
 
@@ -116,7 +121,7 @@ def submit_feedback():
 
             full_name,
 
-            email,
+            user_email,
 
             description
 
@@ -147,9 +152,9 @@ def submit_feedback():
         }), 500
 
 
-# ==========================================
-# GET ALL FEEDBACK
-# ==========================================
+# =====================================================
+# GET ALL FEEDBACK - ADMIN
+# =====================================================
 
 @feedback_bp.route(
     "",
@@ -166,9 +171,85 @@ def all_feedback():
 
             "success": True,
 
-            "feedback": feedback
+            "feedback":
+                feedback
 
-        })
+        }), 200
+
+
+    except Exception as error:
+
+        return jsonify({
+
+            "success": False,
+
+            "message": str(error)
+
+        }), 500
+
+
+# =====================================================
+# GET USER FEEDBACK
+# =====================================================
+
+@feedback_bp.route(
+    "/user",
+    methods=["GET"]
+)
+def user_feedback():
+
+    email = str(
+        request.args.get(
+            "email",
+            ""
+        )
+    ).strip().lower()
+
+
+    if not email:
+
+        return jsonify({
+
+            "success": False,
+
+            "message":
+                "Email is required."
+
+        }), 400
+
+
+    try:
+
+        user = get_user_by_email(
+            email
+        )
+
+
+        if not user:
+
+            return jsonify({
+
+                "success": False,
+
+                "message":
+                    "User not found."
+
+            }), 404
+
+
+        feedback = get_user_feedback(
+            user["user_id"]
+        )
+
+
+        return jsonify({
+
+            "success": True,
+
+            "feedback":
+                feedback
+
+        }), 200
 
 
     except Exception as error:

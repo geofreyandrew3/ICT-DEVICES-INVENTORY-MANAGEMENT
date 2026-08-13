@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -191,6 +192,7 @@
     </style>
 </head>
 
+
 <body>
 
 <div class="container">
@@ -210,14 +212,18 @@
             efficiently through one centralized system.
         </p>
 
-    
-
     </div>
 
 
     <!-- ================= LOGIN ================= -->
 
-    
+    <div class="form active" id="loginForm">
+
+        <h2>Login</h2>
+
+        <p class="subtitle">
+            Login to access the system
+        </p>
 
         <div class="input-box">
 
@@ -264,87 +270,91 @@
 
 
     <!-- ================= REGISTRATION ================= -->
+<div class="form" id="registerForm">
 
-    <div class="form" id="registerForm">
+    <h2>User Registration</h2>
 
-        <h2>User Registration</h2>
-
-        <p class="subtitle">
-            Create a new account
-        </p>
-
-
-        <div class="input-box">
-
-            <label>Full Name</label>
-
-            <input
-                type="text"
-                placeholder="Enter your full name">
-
-        </div>
+    <p class="subtitle">
+        Create a new account
+    </p>
 
 
-        <div class="input-box">
+    <div class="input-box">
 
-            <label>Email Address</label>
+        <label>Full Name</label>
 
-            <input
-                type="email"
-                placeholder="Enter your email">
-
-        </div>
-
-
-        <div class="input-box">
-
-            <label>Username</label>
-
-            <input
-                type="text"
-                placeholder="Choose username">
-
-        </div>
-
-
-        <div class="input-box">
-
-            <label>Password</label>
-
-            <input
-                type="password"
-                placeholder="Create password">
-
-        </div>
-
-
-        <div class="input-box">
-
-            <label>Confirm Password</label>
-
-            <input
-                type="password"
-                placeholder="Confirm password">
-
-        </div>
-
-
-        <button class="btn" onclick="register()">
-            Register
-        </button>
-
-
-        <div class="back-login">
-
-            Already have an account?
-
-            <a onclick="showForm('loginForm')">
-                Login
-            </a>
-
-        </div>
+        <input
+            type="text"
+            id="registerFullName"
+            placeholder="Enter your full name">
 
     </div>
+
+
+    <div class="input-box">
+
+        <label>Phone Number</label>
+
+        <input
+            type="tel"
+            id="registerPhone"
+            placeholder="Enter your phone number">
+
+    </div>
+
+
+    <div class="input-box">
+
+        <label>Email Address</label>
+
+        <input
+            type="email"
+            id="registerEmail"
+            placeholder="Enter your email">
+
+    </div>
+
+
+    <div class="input-box">
+
+        <label>Password</label>
+
+        <input
+            type="password"
+            id="registerPassword"
+            placeholder="Create password">
+
+    </div>
+
+
+    <div class="input-box">
+
+        <label>Confirm Password</label>
+
+        <input
+            type="password"
+            id="confirmPassword"
+            placeholder="Confirm password">
+
+    </div>
+
+
+    <button class="btn" onclick="register()">
+        Register
+    </button>
+
+
+    <div class="back-login">
+
+        Already have an account?
+
+        <a onclick="showForm('loginForm')">
+            Login
+        </a>
+
+    </div>
+
+</div>
 
 
     <!-- ================= FORGOT PASSWORD ================= -->
@@ -364,6 +374,7 @@
 
             <input
                 type="email"
+                id="forgotEmail"
                 placeholder="Enter registered email">
 
         </div>
@@ -387,65 +398,167 @@
     </div>
 
 
-    
-
 </div>
 
 
+<!-- ================= HOME PAGE JAVASCRIPT ================= -->
+
 <script>
 
-    /* CHANGE FORMS */
+    /* ================= CHANGE FORMS ================= */
 
     function showForm(formId) {
 
         document.querySelectorAll(".form").forEach(form => {
+
             form.classList.remove("active");
+
         });
 
         document.getElementById(formId).classList.add("active");
     }
 
 
-    /* LOGIN */
+    /* ================= LOGIN ================= */
 
-    function login() {
+    async function login() {
 
-        let username =
-            document.getElementById("loginUsername").value;
+    const email =
+        document.getElementById(
+            "loginUsername"
+        ).value.trim();
 
-        let password =
-            document.getElementById("loginPassword").value;
+    const password =
+        document.getElementById(
+            "loginPassword"
+        ).value;
 
-        if (username === "" || password === "") {
 
-            alert("Please enter username and password.");
+    if (!email || !password) {
+
+        alert(
+            "Please enter email and password."
+        );
+
+        return;
+    }
+
+
+    try {
+
+        const response = await fetch(
+            "http://127.0.0.1:5000/api/auth/login",
+            {
+
+                method: "POST",
+
+                headers: {
+                    "Content-Type":
+                        "application/json"
+                },
+
+                body: JSON.stringify({
+
+                    email: email,
+
+                    password: password
+
+                })
+
+            }
+        );
+
+
+        const data =
+            await response.json();
+
+
+        if (!data.success) {
+
+            alert(
+                data.message
+            );
 
             return;
         }
 
-        alert("Login successful!");
+
+        /*
+         * Save logged-in user
+         */
+
+        localStorage.setItem(
+            "loggedInUser",
+            JSON.stringify(data.user)
+        );
+
+
+        /*
+         * Check role
+         */
+
+        if (
+            data.user.role === "admin"
+        ) {
+
+            window.location.href =
+                "admin.html";
+
+        } else {
+
+            window.location.href =
+                "index.html";
+
+        }
+
+
+    } catch (error) {
+
+        console.error(
+            "Login error:",
+            error
+        );
+
+
+        alert(
+            "Unable to connect to the server."
+        );
 
     }
 
-
-    /* REGISTRATION */
-
-    function register() {
-
-        alert("Registration submitted successfully!");
-
-    }
+}
 
 
-    /* PASSWORD RESET */
+
+    /* ================= PASSWORD RESET ================= */
 
     function resetPassword() {
 
-        alert("Password reset link has been sent to your email.");
+        let email =
+            document.getElementById("forgotEmail").value.trim();
+
+
+        if (email === "") {
+
+            alert("Please enter your registered email.");
+
+            return;
+        }
+
+
+        alert(
+            "Password reset link has been sent to your email."
+        );
 
     }
 
 </script>
 
+
+<!-- ================= EXTERNAL JAVASCRIPT ================= -->
+
+<script src="scripts.js"></script>
+
 </body>
 </html>
+```

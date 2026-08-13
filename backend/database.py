@@ -17,11 +17,17 @@ from config import (
 def get_db_connection():
 
     connection = mysql.connector.connect(
+
         host=DB_HOST,
+
         user=DB_USER,
+
         password=DB_PASSWORD,
+
         database=DB_NAME,
+
         port=DB_PORT
+
     )
 
     return connection
@@ -59,10 +65,43 @@ def initialize_database():
 
                 password VARCHAR(255) NOT NULL,
 
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                role VARCHAR(30) NOT NULL DEFAULT 'user',
+
+                created_at TIMESTAMP
+                    DEFAULT CURRENT_TIMESTAMP
 
             )
         """)
+
+
+        # ==================================
+        # ADD ROLE IF OLD TABLE EXISTS
+        # ==================================
+
+        cursor.execute("""
+            SELECT COUNT(*)
+            FROM INFORMATION_SCHEMA.COLUMNS
+
+            WHERE TABLE_SCHEMA = %s
+
+            AND TABLE_NAME = 'users'
+
+            AND COLUMN_NAME = 'role'
+        """, (DB_NAME,))
+
+        role_exists = cursor.fetchone()[0]
+
+
+        if role_exists == 0:
+
+            cursor.execute("""
+                ALTER TABLE users
+                ADD COLUMN role
+                VARCHAR(30)
+                NOT NULL
+                DEFAULT 'user'
+                AFTER password
+            """)
 
 
         # ==================================
@@ -74,15 +113,20 @@ def initialize_database():
 
                 device_id INT AUTO_INCREMENT PRIMARY KEY,
 
-                device_code VARCHAR(50) NOT NULL UNIQUE,
+                device_code VARCHAR(50)
+                    NOT NULL UNIQUE,
 
-                device_name VARCHAR(100) NOT NULL,
+                device_name VARCHAR(100)
+                    NOT NULL,
 
-                total_quantity INT NOT NULL DEFAULT 0,
+                total_quantity INT
+                    NOT NULL DEFAULT 0,
 
-                available_quantity INT NOT NULL DEFAULT 0,
+                available_quantity INT
+                    NOT NULL DEFAULT 0,
 
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                created_at TIMESTAMP
+                    DEFAULT CURRENT_TIMESTAMP
 
             )
         """)
@@ -107,14 +151,17 @@ def initialize_database():
 
                 borrow_time TIME NOT NULL,
 
-                status VARCHAR(30) NOT NULL DEFAULT 'Borrowed',
+                status VARCHAR(30)
+                    NOT NULL DEFAULT 'Borrowed',
 
                 FOREIGN KEY (user_id)
                     REFERENCES users(user_id)
+
                     ON DELETE CASCADE,
 
                 FOREIGN KEY (device_id)
                     REFERENCES devices(device_id)
+
                     ON DELETE CASCADE
 
             )
@@ -143,6 +190,7 @@ def initialize_database():
 
                 FOREIGN KEY (user_id)
                     REFERENCES users(user_id)
+
                     ON DELETE SET NULL
 
             )
@@ -150,7 +198,7 @@ def initialize_database():
 
 
         # ==================================
-        # INSERT DEFAULT DEVICES
+        # DEFAULT DEVICES
         # ==================================
 
         cursor.execute("""
@@ -200,13 +248,17 @@ def initialize_database():
                     available_quantity
                 )
 
-                VALUES (%s, %s, %s, %s)
+                VALUES
+                (%s, %s, %s, %s)
+
             """, devices)
 
 
         connection.commit()
 
-        print("Database tables initialized successfully.")
+        print(
+            "Database tables initialized successfully."
+        )
 
 
     except Error as error:
@@ -220,7 +272,10 @@ def initialize_database():
     finally:
 
         if cursor:
+
             cursor.close()
 
+
         if connection:
+
             connection.close()
